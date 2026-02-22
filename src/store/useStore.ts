@@ -3,11 +3,11 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 
 export type TimerMode = "Focus" | "Short Break" | "Long Break";
 
-export const TIMER_DURATIONS: Record<TimerMode, number> = {
-    "Focus": 25 * 60,
-    "Short Break": 5 * 60,
-    "Long Break": 15 * 60,
-};
+export interface CustomTimerDurations {
+    "Focus": number;
+    "Short Break": number;
+    "Long Break": number;
+}
 
 export interface Task {
     id: string;
@@ -15,15 +15,24 @@ export interface Task {
     completed: boolean;
 }
 
+export type Tab = 'timer' | 'tasks' | 'analytics';
+
 interface AppState {
-    activeTab: 'timer' | 'tasks';
-    setActiveTab: (tab: 'timer' | 'tasks') => void;
+    activeTab: Tab;
+    setActiveTab: (tab: Tab) => void;
 
     // Timer State
     timerMode: TimerMode;
     timeLeft: number;
+    timerDurations: CustomTimerDurations;
     isRunning: boolean;
+    autoStartBreaks: boolean;
+    pomodorosCompleted: number;
+
     setTimerMode: (mode: TimerMode) => void;
+    setAutoStartBreaks: (autoStart: boolean) => void;
+    incrementPomodoros: () => void;
+    updateTimerDuration: (mode: TimerMode, minutes: number) => void;
     setTimeLeft: (time: number | ((prev: number) => number)) => void;
     setIsRunning: (isRunning: boolean) => void;
     resetTimer: () => void;
@@ -42,15 +51,38 @@ export const useStore = create<AppState>()(
             setActiveTab: (tab) => set({ activeTab: tab }),
 
             timerMode: "Focus",
-            timeLeft: TIMER_DURATIONS["Focus"],
+            timerDurations: {
+                "Focus": 25 * 60,
+                "Short Break": 5 * 60,
+                "Long Break": 15 * 60,
+            },
+            timeLeft: 25 * 60,
             isRunning: false,
+            autoStartBreaks: false,
+            pomodorosCompleted: 0,
 
-            setTimerMode: (mode) => set({ timerMode: mode, timeLeft: TIMER_DURATIONS[mode], isRunning: false }),
+            setTimerMode: (mode) => set((state) => ({
+                timerMode: mode,
+                timeLeft: state.timerDurations[mode],
+                isRunning: false
+            })),
+            setAutoStartBreaks: (autoStart) => set({ autoStartBreaks: autoStart }),
+            incrementPomodoros: () => set((state) => ({ pomodorosCompleted: state.pomodorosCompleted + 1 })),
+            updateTimerDuration: (mode, minutes) => set((state) => {
+                const newDurations = { ...state.timerDurations, [mode]: minutes * 60 };
+                // If we are currently in this mode, dynamically update the time left
+                const newTimeLeft = state.timerMode === mode ? minutes * 60 : state.timeLeft;
+                return {
+                    timerDurations: newDurations,
+                    timeLeft: newTimeLeft,
+                    isRunning: false // pause if settings change
+                };
+            }),
             setTimeLeft: (time) => set((state) => ({
                 timeLeft: typeof time === 'function' ? time(state.timeLeft) : time
             })),
             setIsRunning: (isRunning) => set({ isRunning }),
-            resetTimer: () => set((state) => ({ timeLeft: TIMER_DURATIONS[state.timerMode], isRunning: false })),
+            resetTimer: () => set((state) => ({ timeLeft: state.timerDurations[state.timerMode], isRunning: false })),
 
             tasks: [],
             addTask: (text) => set((state) => ({
@@ -69,7 +101,9 @@ export const useStore = create<AppState>()(
             partialize: (state) => ({
                 tasks: state.tasks,
                 timerMode: state.timerMode,
-                activeTab: state.activeTab
+                timerDurations: state.timerDurations,
+                autoStartBreaks: state.autoStartBreaks,
+                pomodorosCompleted: state.pomodorosCompleted
             }), // Only save these fields, omit running timer state
         }
     )

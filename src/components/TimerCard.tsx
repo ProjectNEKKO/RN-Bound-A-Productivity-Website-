@@ -3,7 +3,8 @@
 import { useEffect } from "react";
 import { Play, Pause, RotateCcw, SkipForward } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useStore, TimerMode, TIMER_DURATIONS } from "@/store/useStore";
+import { useStore, TimerMode } from "@/store/useStore";
+import { SettingsModal } from "./SettingsModal";
 
 export function TimerCard() {
     const modes: TimerMode[] = ["Focus", "Short Break", "Long Break"];
@@ -12,11 +13,21 @@ export function TimerCard() {
         timerMode,
         timeLeft,
         isRunning,
+        autoStartBreaks,
+        pomodorosCompleted,
         setTimerMode,
         setTimeLeft,
         setIsRunning,
+        incrementPomodoros,
         resetTimer
     } = useStore();
+
+    // Request notification permissions on mount
+    useEffect(() => {
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+    }, []);
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -26,13 +37,40 @@ export function TimerCard() {
                 setTimeLeft((prev) => prev - 1);
             }, 1000);
         } else if (timeLeft === 0 && isRunning) {
-            // Auto-skip or simple stop when reaching 0
+
+            // Reached zero logic
             setIsRunning(false);
-            // Play a sound? Or just switch mode automatically. Let's keep it simple for now.
+
+            // Fire Desktop Notification
+            if ("Notification" in window && Notification.permission === "granted") {
+                const message = timerMode === "Focus"
+                    ? "Focus session complete! Time for a break."
+                    : "Break is over! Time to focus.";
+                new Notification("Focus Hub", { body: message });
+            }
+
+            let nextMode: TimerMode = "Focus";
+
+            if (timerMode === "Focus") {
+                incrementPomodoros();
+                const newPomodoroCount = pomodorosCompleted + 1;
+                nextMode = (newPomodoroCount % 4 === 0) ? "Long Break" : "Short Break";
+            } else {
+                nextMode = "Focus";
+            }
+
+            setTimerMode(nextMode);
+
+            if (autoStartBreaks) {
+                // Small timeout to allow state to settle before auto-starting
+                setTimeout(() => {
+                    setIsRunning(true);
+                }, 100);
+            }
         }
 
         return () => clearInterval(interval);
-    }, [isRunning, timeLeft, setTimeLeft, setIsRunning]);
+    }, [isRunning, timeLeft, timerMode, autoStartBreaks, pomodorosCompleted, setTimeLeft, setIsRunning, incrementPomodoros, setTimerMode]);
 
     const toggleTimer = () => setIsRunning(!isRunning);
 
@@ -42,6 +80,14 @@ export function TimerCard() {
         return `${m}:${s}`;
     };
 
+    // Sync browser title with the current timer
+    useEffect(() => {
+        const timeString = formatTime(timeLeft);
+        document.title = isRunning
+            ? `(${timeString}) ${timerMode} - Focus Hub`
+            : `Focus Hub`;
+    }, [timeLeft, isRunning, timerMode]);
+
     const handleSkip = () => {
         // Simple cycle logic
         const currentIndex = modes.indexOf(timerMode);
@@ -49,11 +95,13 @@ export function TimerCard() {
         setTimerMode(nextMode);
     };
 
-    // Calculate dash offset for a circular progress ring if we wanted to add it later. (Future proofing)
-    // const progress = 1 - (timeLeft / TIMER_DURATIONS[timerMode]);
+    // const { timerDurations } = useStore();
+    // const progress = 1 - (timeLeft / timerDurations[timerMode]);
 
     return (
         <div className="flex flex-col items-center justify-center p-6 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Settings Modal Trigger */}
+            <SettingsModal />
 
             {/* Mode Selector */}
             <div className="flex p-1 bg-foreground/5 rounded-full">
@@ -75,7 +123,7 @@ export function TimerCard() {
 
             {/* Timer Display */}
             <div className="relative flex items-center justify-center w-64 h-64 rounded-full bg-card border-[6px] border-primary/20 shadow-2xl shadow-primary/10 transition-colors duration-500">
-                <h2 className="text-7xl font-sans tracking-tight text-foreground -mt-4 tabular-nums">
+                <h2 className="text-[5.5rem] font-black tracking-tight text-foreground -mt-4 tabular-nums">
                     {formatTime(timeLeft)}
                 </h2>
 

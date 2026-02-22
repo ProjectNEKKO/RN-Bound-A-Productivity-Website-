@@ -9,7 +9,7 @@
   --color-primary-foreground: var(--primary-foreground);
   
   --font-sans: var(--font-montserrat);
-  --font-serif: var(--font-playfair);
+  --font-heading: var(--font-poppins);
 }
 
 :root {
@@ -43,5 +43,5 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-playfair), serif;
+  font-family: var(--font-poppins), sans-serif;
 }
