@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  
+  --font-sans: var(--font-montserrat);
+  --font-serif: var(--font-playfair);
+}
+
+:root {
+  /* Light mode - Soft, calm feminine palette (warm neutrals/pastels) */
+  --background: #fdfbf7;
+  --foreground: #4a4543;
+  
+  --card: #ffffff;
+  --card-foreground: #4a4543;
+  
+  --primary: #dcbfa6;
+  --primary-foreground: #ffffff;
+}
+
+.dark {
+  /* Dark mode - Deep, warm and sophisticated */
+  --background: #232120;
+  --foreground: #ebe8e6;
+  
+  --card: #2a2827;
+  --card-foreground: #ebe8e6;
+  
+  --primary: #b39780;
+  --primary-foreground: #ffffff;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-montserrat), sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-playfair), serif;
+}
