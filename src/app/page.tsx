@@ -19,12 +19,16 @@ export default function Home() {
   const { activeView } = useStore();
 
   return (
-    <div className="min-h-screen flex bg-background text-foreground">
+    <div className="min-h-screen flex bg-background text-foreground relative overflow-hidden">
+      {/* Background orbs */}
+      <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/5 blur-[120px] pointer-events-none z-0" />
+      <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/5 blur-[100px] pointer-events-none z-0" />
+
       {/* Sidebar */}
       <Sidebar />
 
-      {/* Main content area */}
-      <div className="flex-1 flex flex-col ml-16 h-screen">
+      {/* Main content area — offset for the floating sidebar (w-24 + m-4 = 112px) */}
+      <div className="flex-1 flex flex-col h-screen ml-[112px] mr-4 my-4 gap-4 relative z-10">
         {/* Top bar */}
         <TopBar title={VIEW_TITLES[activeView] || "Dashboard"} />
 

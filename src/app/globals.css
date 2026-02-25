@@ -103,3 +103,55 @@ input[type="range"]::-webkit-slider-thumb {
   direction: ltr;
   -webkit-font-smoothing: antialiased;
 }
+
+.material-symbols-outlined.filled {
+  font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+/* LEA Bento Grid */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(12, 1fr);
+  gap: 1.5rem;
+  height: 100%;
+}
+
+/* LEA Glass Panels */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.dark .glass-panel {
+  background: rgba(33, 17, 25, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* LEA Glass Sidebar */
+.glass-sidebar {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
+}
+
+.dark .glass-sidebar {
+  background: rgba(30, 20, 30, 0.4);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* LEA Nav Item Active */
+.nav-item-active {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 12px rgba(232, 48, 140, 0.15);
+  color: #e8308c;
+}
+
+.dark .nav-item-active {
+  background: rgba(232, 48, 140, 0.15);
+  color: #fff;
+}

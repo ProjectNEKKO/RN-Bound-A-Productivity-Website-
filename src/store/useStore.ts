@@ -17,6 +17,10 @@ export interface Task {
     completed: boolean;
     status: TaskStatus;
     category?: string;
+    description?: string;
+    dueDate?: string;
+    commentCount?: number;
+    assignee?: string;
 }
 
 interface AppState {

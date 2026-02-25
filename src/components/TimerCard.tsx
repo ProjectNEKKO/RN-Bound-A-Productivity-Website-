@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Play, Pause, RotateCcw, Coffee } from "lucide-react";
+import { Play, Pause, Coffee } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore, TimerMode } from "@/store/useStore";
 import { SettingsModal } from "./SettingsModal";
@@ -169,13 +169,6 @@ export function TimerView() {
                                 Take Break
                             </button>
 
-                            <button
-                                onClick={resetTimer}
-                                className="w-10 h-10 rounded-xl bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-all"
-                                aria-label="Reset Timer"
-                            >
-                                <RotateCcw size={16} />
-                            </button>
                         </div>
                     </div>
 
@@ -195,8 +188,8 @@ export function TimerView() {
                                         className={cn(
                                             "flex-1 py-2 rounded-lg text-xs font-semibold transition-all",
                                             currentDurationMin === d
-                                                ? "bg-primary text-white shadow-sm"
-                                                : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
+                                                ? "bg-primary/10 text-primary border-2 border-primary"
+                                                : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 border-2 border-transparent"
                                         )}
                                     >
                                         {d}m
