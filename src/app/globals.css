@@ -7,41 +7,99 @@
   --color-card-foreground: var(--card-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  
-  --font-sans: var(--font-montserrat);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+
+  --font-sans: var(--font-lexend);
   --font-heading: var(--font-poppins);
 }
 
 :root {
-  /* Light mode - Soft, calm feminine palette (warm neutrals/pastels) */
-  --background: #fdfbf7;
-  --foreground: #4a4543;
-  
+  /* LEA Light Mode */
+  --background: #f8f6f7;
+  --foreground: #1a1a2e;
+
   --card: #ffffff;
-  --card-foreground: #4a4543;
-  
-  --primary: #dcbfa6;
+  --card-foreground: #1a1a2e;
+
+  --primary: #e8308c;
   --primary-foreground: #ffffff;
+
+  --muted: #f1eef0;
+  --muted-foreground: #71717a;
+
+  --border: #e5e2e4;
 }
 
 .dark {
-  /* Dark mode - Deep, warm and sophisticated */
-  --background: #232120;
-  --foreground: #ebe8e6;
-  
-  --card: #2a2827;
-  --card-foreground: #ebe8e6;
-  
-  --primary: #b39780;
+  --background: #1a1a2e;
+  --foreground: #f8f6f7;
+
+  --card: #252540;
+  --card-foreground: #f8f6f7;
+
+  --primary: #e8308c;
   --primary-foreground: #ffffff;
+
+  --muted: #2a2a45;
+  --muted-foreground: #a1a1aa;
+
+  --border: #3a3a55;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-montserrat), sans-serif;
+  font-family: var(--font-lexend), system-ui, sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-poppins), sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-poppins), system-ui, sans-serif;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+/* Range input styling */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(232, 48, 140, 0.3);
+}
+
+/* Material Symbols support */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
 }

@@ -1,58 +1,56 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { AmbiancePlayer } from './AmbiancePlayer';
-import { beforeEach, describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, it, expect } from 'vitest';
 
-describe('AmbiancePlayer', () => {
+describe('AmbiancePlayer (MusicView)', () => {
     beforeEach(() => {
-        // Clear mocks if any
+        // Clear mocks
     });
 
-    it('renders the ambiance player correctly', () => {
+    it('renders the music player correctly', () => {
         render(<AmbiancePlayer />);
 
-        // Check header
-        expect(screen.getByText('Ambiance')).toBeInTheDocument();
+        // Check hero track name (appears in hero + player bar)
+        expect(screen.getAllByText('Midnight Coffee').length).toBeGreaterThanOrEqual(1);
 
-        // Check initial state
-        expect(screen.getByText('Paused')).toBeInTheDocument();
+        // Check section headings
+        expect(screen.getByText('Curated Playlists')).toBeInTheDocument();
 
-        // Check tracks are rendered
-        const textNodes = screen.getAllByText(/Rain|Cafe|Nature/);
-        expect(textNodes.length).toBeGreaterThan(0);
+        // Check buttons
+        expect(screen.getByLabelText('Previous Ambiance')).toBeInTheDocument();
+        expect(screen.getAllByLabelText('Play').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getByLabelText('Next Ambiance')).toBeInTheDocument();
     });
 
     it('toggles play/pause state', async () => {
         render(<AmbiancePlayer />);
 
-        const playButton = screen.getByLabelText('Play');
-        expect(playButton).toBeInTheDocument();
+        // Find the bottom player bar play button
+        const playButtons = screen.getAllByLabelText('Play');
+        const bottomBarPlay = playButtons[playButtons.length - 1];
+        expect(bottomBarPlay).toBeInTheDocument();
 
         // Click play
-        fireEvent.click(playButton);
-        expect(await screen.findByText('Playing')).toBeInTheDocument();
+        fireEvent.click(bottomBarPlay);
 
         // Check if it turned into pause button
-        const pauseButton = screen.getByLabelText('Pause');
-        expect(pauseButton).toBeInTheDocument();
+        const pauseButtons = await screen.findAllByLabelText('Pause');
+        expect(pauseButtons.length).toBeGreaterThanOrEqual(1);
 
         // Click pause
-        fireEvent.click(pauseButton);
-        expect(await screen.findByText('Paused')).toBeInTheDocument();
+        fireEvent.click(pauseButtons[pauseButtons.length - 1]);
     });
 
     it('switches tracks when clicked', () => {
         render(<AmbiancePlayer />);
 
-        const buttons = screen.getAllByRole('button');
-        // Find a button that has "Cafe" text inside it
-        const cafeButton = buttons.find(b => b.textContent?.includes('Cafe'));
-        expect(cafeButton).toBeDefined();
+        const nextButton = screen.getByLabelText('Next Ambiance');
 
-        fireEvent.click(cafeButton!);
+        fireEvent.click(nextButton);
 
-        // Verify it updated the main text
-        // The active track name is displayed in a span
-        const allCafes = screen.getAllByText('Cafe');
-        expect(allCafes.length).toBeGreaterThanOrEqual(1);
+        // Verify the hero and player bar both show the next track (Rainy Day)
+        // "Rainy Day" will appear in hero, player bar, and playlist card
+        const allRainyDay = screen.getAllByText('Rainy Day');
+        expect(allRainyDay.length).toBeGreaterThanOrEqual(2);
     });
 });

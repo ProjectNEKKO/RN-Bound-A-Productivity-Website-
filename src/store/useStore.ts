@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
 export type TimerMode = "Focus" | "Short Break" | "Long Break";
+export type ActiveView = 'home' | 'tasks' | 'timer' | 'music';
+export type TaskStatus = 'todo' | 'inProgress' | 'review' | 'done';
 
 export interface CustomTimerDurations {
     "Focus": number;
@@ -13,13 +15,13 @@ export interface Task {
     id: string;
     text: string;
     completed: boolean;
+    status: TaskStatus;
+    category?: string;
 }
 
-export type Tab = 'timer' | 'tasks' | 'analytics';
-
 interface AppState {
-    activeTab: Tab;
-    setActiveTab: (tab: Tab) => void;
+    activeView: ActiveView;
+    setActiveView: (view: ActiveView) => void;
 
     // Timer State
     timerMode: TimerMode;
@@ -39,16 +41,17 @@ interface AppState {
 
     // Task State
     tasks: Task[];
-    addTask: (text: string) => void;
+    addTask: (text: string, status?: TaskStatus, category?: string) => void;
     toggleTask: (id: string) => void;
     deleteTask: (id: string) => void;
+    updateTaskStatus: (id: string, status: TaskStatus) => void;
 }
 
 export const useStore = create<AppState>()(
     persist(
-        (set, get) => ({
-            activeTab: 'timer',
-            setActiveTab: (tab) => set({ activeTab: tab }),
+        (set) => ({
+            activeView: 'home',
+            setActiveView: (view) => set({ activeView: view }),
 
             timerMode: "Focus",
             timerDurations: {
@@ -70,12 +73,11 @@ export const useStore = create<AppState>()(
             incrementPomodoros: () => set((state) => ({ pomodorosCompleted: state.pomodorosCompleted + 1 })),
             updateTimerDuration: (mode, minutes) => set((state) => {
                 const newDurations = { ...state.timerDurations, [mode]: minutes * 60 };
-                // If we are currently in this mode, dynamically update the time left
                 const newTimeLeft = state.timerMode === mode ? minutes * 60 : state.timeLeft;
                 return {
                     timerDurations: newDurations,
                     timeLeft: newTimeLeft,
-                    isRunning: false // pause if settings change
+                    isRunning: false
                 };
             }),
             setTimeLeft: (time) => set((state) => ({
@@ -85,26 +87,29 @@ export const useStore = create<AppState>()(
             resetTimer: () => set((state) => ({ timeLeft: state.timerDurations[state.timerMode], isRunning: false })),
 
             tasks: [],
-            addTask: (text) => set((state) => ({
-                tasks: [...state.tasks, { id: crypto.randomUUID(), text, completed: false }]
+            addTask: (text, status = 'todo', category) => set((state) => ({
+                tasks: [...state.tasks, { id: crypto.randomUUID(), text, completed: status === 'done', status, category }]
             })),
             toggleTask: (id) => set((state) => ({
-                tasks: state.tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t)
+                tasks: state.tasks.map(t => t.id === id ? { ...t, completed: !t.completed, status: !t.completed ? 'done' : 'todo' } : t)
             })),
             deleteTask: (id) => set((state) => ({
                 tasks: state.tasks.filter(t => t.id !== id)
             })),
+            updateTaskStatus: (id, status) => set((state) => ({
+                tasks: state.tasks.map(t => t.id === id ? { ...t, status, completed: status === 'done' } : t)
+            })),
         }),
         {
-            name: 'focus-hub-storage', // name of the item in the storage (must be unique)
-            storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
+            name: 'focus-hub-storage',
+            storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
                 tasks: state.tasks,
                 timerMode: state.timerMode,
                 timerDurations: state.timerDurations,
                 autoStartBreaks: state.autoStartBreaks,
                 pomodorosCompleted: state.pomodorosCompleted
-            }), // Only save these fields, omit running timer state
+            }),
         }
     )
 );

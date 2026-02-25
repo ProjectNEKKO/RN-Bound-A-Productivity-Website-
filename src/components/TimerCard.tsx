@@ -1,17 +1,18 @@
 "use client";
 
 import { useEffect } from "react";
-import { Play, Pause, RotateCcw, SkipForward } from "lucide-react";
+import { Play, Pause, RotateCcw, Coffee } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore, TimerMode } from "@/store/useStore";
 import { SettingsModal } from "./SettingsModal";
 
-export function TimerCard() {
-    const modes: TimerMode[] = ["Focus", "Short Break", "Long Break"];
+export function TimerView() {
+    const durations = [25, 50, 90];
 
     const {
         timerMode,
         timeLeft,
+        timerDurations,
         isRunning,
         autoStartBreaks,
         pomodorosCompleted,
@@ -19,7 +20,8 @@ export function TimerCard() {
         setTimeLeft,
         setIsRunning,
         incrementPomodoros,
-        resetTimer
+        resetTimer,
+        updateTimerDuration,
     } = useStore();
 
     // Request notification permissions on mount
@@ -37,11 +39,8 @@ export function TimerCard() {
                 setTimeLeft((prev) => prev - 1);
             }, 1000);
         } else if (timeLeft === 0 && isRunning) {
-
-            // Reached zero logic
             setIsRunning(false);
 
-            // Fire Desktop Notification
             if ("Notification" in window && Notification.permission === "granted") {
                 const message = timerMode === "Focus"
                     ? "Focus session complete! Time for a break."
@@ -62,7 +61,6 @@ export function TimerCard() {
             setTimerMode(nextMode);
 
             if (autoStartBreaks) {
-                // Small timeout to allow state to settle before auto-starting
                 setTimeout(() => {
                     setIsRunning(true);
                 }, 100);
@@ -80,7 +78,6 @@ export function TimerCard() {
         return `${m}:${s}`;
     };
 
-    // Sync browser title with the current timer
     useEffect(() => {
         const timeString = formatTime(timeLeft);
         document.title = isRunning
@@ -88,84 +85,186 @@ export function TimerCard() {
             : `Focus Hub`;
     }, [timeLeft, isRunning, timerMode]);
 
-    const handleSkip = () => {
-        // Simple cycle logic
-        const currentIndex = modes.indexOf(timerMode);
-        const nextMode = modes[(currentIndex + 1) % modes.length];
-        setTimerMode(nextMode);
-    };
+    const progress = timeLeft / timerDurations[timerMode];
+    const circumference = 2 * Math.PI * 140;
+    const strokeDashoffset = circumference * (1 - progress);
 
-    // const { timerDurations } = useStore();
-    // const progress = 1 - (timeLeft / timerDurations[timerMode]);
+    const currentDurationMin = timerDurations["Focus"] / 60;
+
+    const weekDays = ["M", "T", "W", "T", "F"];
 
     return (
-        <div className="flex flex-col items-center justify-center p-6 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Settings Modal Trigger */}
-            <SettingsModal />
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <div className="max-w-6xl mx-auto space-y-6">
+                {/* Main timer area + side panels */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left: Main Timer */}
+                    <div className="lg:col-span-2 bg-card rounded-2xl border border-border p-8 flex flex-col items-center relative">
+                        <SettingsModal />
 
-            {/* Mode Selector */}
-            <div className="flex p-1 bg-foreground/5 rounded-full">
-                {modes.map((mode) => (
-                    <button
-                        key={mode}
-                        onClick={() => setTimerMode(mode)}
-                        className={cn(
-                            "px-4 py-2 text-sm font-medium rounded-full transition-all duration-300",
-                            timerMode === mode
-                                ? "bg-primary text-primary-foreground shadow-md"
-                                : "text-foreground/60 hover:text-foreground"
-                        )}
-                    >
-                        {mode}
-                    </button>
-                ))}
+                        <h2 className="text-2xl font-bold text-foreground mb-1">Deep Focus Session</h2>
+                        <p className="text-sm text-primary mb-8">Stay present, breathe, and flow.</p>
+
+                        {/* Circular Timer */}
+                        <div className="relative flex items-center justify-center mb-8">
+                            <svg width="320" height="320" className="transform -rotate-90">
+                                {/* Background track */}
+                                <circle
+                                    cx="160"
+                                    cy="160"
+                                    r="140"
+                                    fill="transparent"
+                                    stroke="currentColor"
+                                    strokeWidth="6"
+                                    className="text-border"
+                                />
+                                {/* Progress */}
+                                <circle
+                                    cx="160"
+                                    cy="160"
+                                    r="140"
+                                    fill="transparent"
+                                    stroke="currentColor"
+                                    strokeWidth="6"
+                                    strokeDasharray={circumference}
+                                    strokeDashoffset={strokeDashoffset}
+                                    strokeLinecap="round"
+                                    className="text-primary transition-all duration-1000 ease-linear drop-shadow-[0_0_12px_rgba(232,48,140,0.3)]"
+                                />
+                            </svg>
+                            <div className="absolute flex flex-col items-center">
+                                <span className="text-6xl font-black text-foreground tracking-tight">
+                                    {formatTime(timeLeft)}
+                                </span>
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mt-2">
+                                    Minutes Left
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Controls */}
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={toggleTimer}
+                                className={cn(
+                                    "flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200",
+                                    isRunning
+                                        ? "bg-muted text-foreground hover:bg-muted/80"
+                                        : "bg-primary text-white hover:brightness-110 shadow-lg shadow-primary/25"
+                                )}
+                                aria-label={isRunning ? "Pause Timer" : "Start Timer"}
+                            >
+                                {isRunning ? <Pause size={18} className="fill-current" /> : <Play size={18} className="fill-current" />}
+                                {isRunning ? "Pause" : "Start Timer"}
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    setIsRunning(false);
+                                    setTimerMode("Short Break");
+                                }}
+                                className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm bg-card border border-border text-foreground hover:bg-muted transition-all"
+                            >
+                                <Coffee size={16} />
+                                Take Break
+                            </button>
+
+                            <button
+                                onClick={resetTimer}
+                                className="w-10 h-10 rounded-xl bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-all"
+                                aria-label="Reset Timer"
+                            >
+                                <RotateCcw size={16} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Right: Side panels */}
+                    <div className="space-y-6">
+                        {/* Set Duration */}
+                        <div className="bg-card rounded-2xl border border-border p-5">
+                            <div className="flex items-center gap-2 mb-4">
+                                <span className="material-symbols-outlined text-primary text-lg">schedule</span>
+                                <h3 className="font-semibold text-sm text-foreground">Set Duration</h3>
+                            </div>
+                            <div className="flex gap-2">
+                                {durations.map((d) => (
+                                    <button
+                                        key={d}
+                                        onClick={() => updateTimerDuration("Focus", d)}
+                                        className={cn(
+                                            "flex-1 py-2 rounded-lg text-xs font-semibold transition-all",
+                                            currentDurationMin === d
+                                                ? "bg-primary text-white shadow-sm"
+                                                : "bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80"
+                                        )}
+                                    >
+                                        {d}m
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Daily Focus Stats */}
+                        <div className="bg-card rounded-2xl border border-border p-5">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-primary text-lg">local_fire_department</span>
+                                    <h3 className="font-semibold text-sm text-foreground">Daily Focus Stats</h3>
+                                </div>
+                                <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">OPTIMAL</span>
+                            </div>
+
+                            {/* Week day dots */}
+                            <div className="flex justify-between mb-4 px-2">
+                                {weekDays.map((day, i) => (
+                                    <div key={i} className="flex flex-col items-center gap-1.5">
+                                        <div className={cn(
+                                            "size-6 rounded-full flex items-center justify-center text-[10px] font-semibold",
+                                            i < 3 ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                                        )}>
+                                            {day}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="border-t border-border pt-3 space-y-2">
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-muted-foreground font-medium uppercase tracking-wider text-[10px]">Tasks Done</span>
+                                    <span className="font-semibold text-foreground">{pomodorosCompleted} / 16</span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-muted-foreground font-medium uppercase tracking-wider text-[10px]">Focus Time</span>
+                                    <span className="font-semibold text-foreground">{Math.floor(pomodorosCompleted * 25 / 60)}h {(pomodorosCompleted * 25) % 60}m</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Motivational Quote */}
+                        <div className="bg-gradient-to-br from-primary to-pink-500 rounded-2xl p-5 text-white relative overflow-hidden">
+                            <span className="text-4xl font-black opacity-20 absolute top-2 left-4">&ldquo;</span>
+                            <p className="text-sm font-medium leading-relaxed mt-4 relative z-10">
+                                &ldquo;Focus on being productive instead of busy.&rdquo;
+                            </p>
+                            <p className="text-xs font-semibold mt-3 opacity-80 relative z-10">— Tim Ferriss</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Current Focus Task */}
+                <div className="bg-card rounded-2xl border border-border p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-primary text-lg">list_alt</span>
+                        <h3 className="font-semibold text-sm text-foreground">Current Focus Task</h3>
+                    </div>
+                    <div className="flex items-center gap-3 flex-1 ml-6">
+                        <div className="size-4 rounded-full border-2 border-primary/30" />
+                        <span className="text-sm text-muted-foreground">Design high-fidelity wireframes for Mobile App Dashboard</span>
+                    </div>
+                    <button className="text-xs font-semibold text-primary hover:underline">EDIT TASK</button>
+                </div>
             </div>
-
-            {/* Timer Display */}
-            <div className="relative flex items-center justify-center w-64 h-64 rounded-full bg-card border-[6px] border-primary/20 shadow-2xl shadow-primary/10 transition-colors duration-500">
-                <h2 className="text-[5.5rem] font-black tracking-tight text-foreground -mt-4 tabular-nums">
-                    {formatTime(timeLeft)}
-                </h2>
-
-                {/* Decorative inner pulse if running */}
-                {isRunning && (
-                    <div className="absolute inset-0 rounded-full border-4 border-primary/30 animate-ping -z-10" />
-                )}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
-            </div>
-
-            {/* Controls */}
-            <div className="flex items-center gap-6">
-                <button
-                    onClick={resetTimer}
-                    className="p-3 text-foreground/50 hover:text-foreground hover:bg-foreground/5 rounded-2xl transition-all"
-                    aria-label="Reset Timer"
-                >
-                    <RotateCcw className="w-6 h-6" />
-                </button>
-
-                <button
-                    onClick={toggleTimer}
-                    aria-label={isRunning ? "Pause Timer" : "Start Timer"}
-                    className={cn(
-                        "flex items-center justify-center w-20 h-20 rounded-3xl transition-all duration-300 shadow-xl",
-                        isRunning
-                            ? "bg-card text-primary border-2 border-primary"
-                            : "bg-primary text-primary-foreground hover:scale-105"
-                    )}
-                >
-                    {isRunning ? <Pause className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current ml-1" />}
-                </button>
-
-                <button
-                    onClick={handleSkip}
-                    className="p-3 text-foreground/50 hover:text-foreground hover:bg-foreground/5 rounded-2xl transition-all"
-                    aria-label="Skip to Next Mode"
-                >
-                    <SkipForward className="w-6 h-6" />
-                </button>
-            </div>
-
         </div>
     );
 }

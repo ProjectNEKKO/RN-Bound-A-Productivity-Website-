@@ -38,7 +38,7 @@ export function SettingsModal() {
         <Dialog.Root>
             <Dialog.Trigger asChild>
                 <button
-                    className="absolute top-6 right-6 p-2 rounded-full text-foreground/30 hover:text-foreground hover:bg-foreground/5 transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    className="absolute top-5 right-5 p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary z-10"
                     aria-label="Timer Settings"
                 >
                     <Settings className="w-5 h-5" />

@@ -12,4 +12,4 @@ class AudioMock {
     load() { }
 }
 
-global.Audio = AudioMock as any;
+global.Audio = AudioMock as unknown as typeof Audio;
