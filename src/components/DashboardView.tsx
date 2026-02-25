@@ -106,7 +106,7 @@ export function DashboardView() {
                         <div className="relative flex items-center justify-center my-2 flex-1">
                             <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full" />
                             <svg className="w-48 h-48 transform -rotate-90 relative z-10">
-                                <circle className="text-slate-100 dark:text-slate-800" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" strokeWidth="6" />
+                                <circle className="text-muted" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" strokeWidth="6" />
                                 <circle
                                     className="text-primary drop-shadow-[0_0_10px_rgba(232,48,140,0.4)] transition-all duration-1000 ease-linear"
                                     cx="96" cy="96" fill="transparent" r="88"
@@ -134,7 +134,7 @@ export function DashboardView() {
                             </button>
                             <button
                                 onClick={resetTimer}
-                                className="size-12 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary flex items-center justify-center transition-colors"
+                                className="size-12 rounded-xl bg-muted text-muted-foreground hover:text-primary flex items-center justify-center transition-colors"
                                 aria-label="Reset Timer"
                             >
                                 <span className="material-symbols-outlined text-2xl">refresh</span>
@@ -147,7 +147,7 @@ export function DashboardView() {
                         {/* Header */}
                         <div className="flex justify-between items-center mb-6">
                             <div className="flex items-center gap-3">
-                                <div className="size-10 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-emerald-600">
+                                <div className="size-10 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl flex items-center justify-center text-emerald-600">
                                     <span className="material-symbols-outlined">view_kanban</span>
                                 </div>
                                 <div>
@@ -157,7 +157,7 @@ export function DashboardView() {
                             </div>
                             <button
                                 onClick={() => setActiveView('tasks')}
-                                className="bg-card dark:bg-slate-800 border border-border px-4 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2"
+                                className="bg-card border border-border px-4 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-muted transition-colors flex items-center gap-2"
                             >
                                 <span className="material-symbols-outlined text-sm">add</span> New Task
                             </button>
@@ -166,15 +166,15 @@ export function DashboardView() {
                         {/* Kanban Columns */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 min-h-0">
                             {/* TO DO */}
-                            <div className="flex flex-col gap-4 bg-white/40 dark:bg-slate-900/40 rounded-2xl p-2 h-full">
+                            <div className="flex flex-col gap-4 bg-muted/40 rounded-2xl p-2 h-full">
                                 <div className="flex items-center gap-2 px-2 py-2">
                                     <div className="size-2 rounded-full bg-slate-400" />
                                     <span className="font-bold text-xs text-slate-500 tracking-wide">TO DO</span>
-                                    <span className="bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-[10px] font-bold text-slate-500 ml-auto">{todoTasks.length}</span>
+                                    <span className="bg-muted px-1.5 py-0.5 rounded text-[10px] font-bold text-muted-foreground ml-auto">{todoTasks.length}</span>
                                 </div>
                                 <div className="flex flex-col gap-3 overflow-y-auto pr-1 h-full custom-scrollbar">
                                     {todoTasks.slice(0, 4).map(task => (
-                                        <div key={task.id} className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm hover:-translate-y-1 transition-transform duration-300 cursor-pointer group">
+                                        <div key={task.id} className="p-4 bg-card rounded-xl border border-border shadow-sm hover:-translate-y-1 transition-transform duration-300 cursor-pointer group">
                                             {task.category && (
                                                 <div className="flex justify-between items-start mb-2">
                                                     <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-md uppercase tracking-wide border border-primary/10">{task.category}</span>
@@ -184,9 +184,9 @@ export function DashboardView() {
                                             {task.description && (
                                                 <p className="text-xs text-slate-400 mt-1 line-clamp-2">{task.description}</p>
                                             )}
-                                            <div className="flex items-center mt-3 pt-3 border-t border-slate-50 dark:border-slate-700/50">
+                                            <div className="flex items-center mt-3 pt-3 border-t border-border/50">
                                                 <div className="flex -space-x-2">
-                                                    <div className="size-5 rounded-full bg-primary/20 flex items-center justify-center text-[8px] font-bold text-primary border border-white dark:border-slate-800">SJ</div>
+                                                    <div className="size-5 rounded-full bg-primary/20 flex items-center justify-center text-[8px] font-bold text-primary border border-card">SJ</div>
                                                 </div>
                                                 <span className="text-[10px] text-slate-400 ml-auto font-medium">Today</span>
                                             </div>
@@ -199,7 +199,7 @@ export function DashboardView() {
                             </div>
 
                             {/* IN PROGRESS */}
-                            <div className="flex flex-col gap-4 bg-white/40 dark:bg-slate-900/40 rounded-2xl p-2 h-full">
+                            <div className="flex flex-col gap-4 bg-muted/40 rounded-2xl p-2 h-full">
                                 <div className="flex items-center gap-2 px-2 py-2">
                                     <div className="size-2 rounded-full bg-primary animate-pulse" />
                                     <span className="font-bold text-xs text-slate-500 tracking-wide">IN PROGRESS</span>
@@ -207,10 +207,10 @@ export function DashboardView() {
                                 </div>
                                 <div className="flex flex-col gap-3 h-full overflow-y-auto custom-scrollbar">
                                     {inProgressTasks.slice(0, 4).map(task => (
-                                        <div key={task.id} className="p-4 bg-white dark:bg-slate-800 rounded-xl border-l-4 border-l-primary shadow-sm hover:-translate-y-1 transition-transform duration-300">
+                                        <div key={task.id} className="p-4 bg-card rounded-xl border-l-4 border-l-primary shadow-sm hover:-translate-y-1 transition-transform duration-300">
                                             <h4 className="font-bold text-sm text-foreground">{task.text}</h4>
                                             {/* Inline progress bar */}
-                                            <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-3 overflow-hidden">
+                                            <div className="w-full bg-muted h-1.5 rounded-full mt-3 overflow-hidden">
                                                 <div className="bg-primary h-full rounded-full" style={{ width: '45%' }} />
                                             </div>
                                             <div className="flex justify-between mt-2 text-[10px] font-medium text-slate-400">
@@ -226,18 +226,18 @@ export function DashboardView() {
                             </div>
 
                             {/* DONE */}
-                            <div className="flex flex-col gap-4 bg-white/40 dark:bg-slate-900/40 rounded-2xl p-2 h-full">
+                            <div className="flex flex-col gap-4 bg-muted/40 rounded-2xl p-2 h-full">
                                 <div className="flex items-center gap-2 px-2 py-2">
                                     <div className="size-2 rounded-full bg-emerald-400" />
                                     <span className="font-bold text-xs text-slate-500 tracking-wide">DONE</span>
-                                    <span className="bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded text-[10px] font-bold text-emerald-500 ml-auto">{doneTasks.length}</span>
+                                    <span className="bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded text-[10px] font-bold text-emerald-500 ml-auto">{doneTasks.length}</span>
                                 </div>
                                 <div className="flex flex-col gap-3 opacity-60 hover:opacity-100 transition-opacity overflow-y-auto custom-scrollbar">
                                     {doneTasks.slice(0, 4).map(task => (
-                                        <div key={task.id} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-transparent shadow-none">
+                                        <div key={task.id} className="p-4 bg-muted/50 rounded-xl border border-transparent shadow-none">
                                             <div className="flex items-center gap-2">
                                                 <span className="material-symbols-outlined text-emerald-500 text-sm">check_circle</span>
-                                                <h4 className="font-bold text-sm text-slate-600 dark:text-slate-400 line-through">{task.text}</h4>
+                                                <h4 className="font-bold text-sm text-muted-foreground line-through">{task.text}</h4>
                                             </div>
                                         </div>
                                     ))}
@@ -273,7 +273,7 @@ export function DashboardView() {
                                 <h4 className="font-bold text-lg truncate text-foreground">{MINI_TRACKS[0].name}</h4>
                                 <p className="text-sm text-slate-500 font-medium truncate">{MINI_TRACKS[0].artist}</p>
                                 {miniPlaying && (
-                                    <div className="flex items-center gap-1.5 mt-2 bg-white/50 dark:bg-white/10 w-fit px-2 py-1 rounded-lg">
+                                    <div className="flex items-center gap-1.5 mt-2 bg-card/50 w-fit px-2 py-1 rounded-lg">
                                         <div className="flex gap-0.5 items-end h-3">
                                             <div className="w-0.5 bg-primary h-2 animate-[bounce_1s_infinite]" />
                                             <div className="w-0.5 bg-primary h-3 animate-[bounce_1.2s_infinite]" />
@@ -287,7 +287,7 @@ export function DashboardView() {
 
                         {/* Progress / Seekbar */}
                         <div className="space-y-3 mt-4 relative z-10">
-                            <div className="relative w-full h-1.5 bg-slate-200/50 dark:bg-slate-700/50 rounded-full overflow-hidden cursor-pointer group/progress">
+                            <div className="relative w-full h-1.5 bg-muted/50 rounded-full overflow-hidden cursor-pointer group/progress">
                                 <div className="absolute top-0 left-0 bg-primary h-full rounded-full relative" style={{ width: miniPlaying ? '65%' : '0%' }}>
                                     <div className="absolute right-0 top-1/2 -translate-y-1/2 size-2 bg-white rounded-full shadow-sm opacity-0 group-hover/progress:opacity-100" />
                                 </div>
@@ -308,8 +308,8 @@ export function DashboardView() {
                                 className={cn(
                                     "size-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 ring-4 ring-primary/5",
                                     miniPlaying
-                                        ? "bg-white dark:bg-slate-800 text-primary"
-                                        : "bg-white dark:bg-slate-800 text-primary"
+                                        ? "bg-card text-primary"
+                                        : "bg-card text-primary"
                                 )}
                             >
                                 <span className="material-symbols-outlined text-3xl filled">

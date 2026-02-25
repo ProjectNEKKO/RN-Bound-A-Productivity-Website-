@@ -1,6 +1,15 @@
 "use client";
 
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+
 export function TopBar({ title }: { title: string }) {
+    const { theme, setTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
     return (
         <header className="glass-panel h-16 rounded-[1.5rem] px-8 flex items-center justify-between shadow-sm shrink-0">
             {/* Left: Search */}
@@ -24,6 +33,18 @@ export function TopBar({ title }: { title: string }) {
                     <span className="material-symbols-outlined">notifications</span>
                     <span className="absolute top-0 right-0 size-2 bg-red-400 rounded-full border-2 border-white dark:border-slate-900" />
                 </button>
+
+                {mounted && (
+                    <button
+                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                        className="text-slate-400 hover:text-foreground transition-colors flex items-center justify-center size-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+                        title="Toggle dark mode"
+                    >
+                        <span className="material-symbols-outlined text-xl">
+                            {theme === "dark" ? "light_mode" : "dark_mode"}
+                        </span>
+                    </button>
+                )}
 
                 <div className="h-6 w-px bg-slate-200 dark:bg-slate-700" />
 
