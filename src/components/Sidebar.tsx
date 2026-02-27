@@ -11,7 +11,7 @@ const navItems: { id: ActiveView; icon: string; filledIcon: string; label: strin
 ];
 
 export function Sidebar() {
-    const { activeView, setActiveView } = useStore();
+    const { activeView, setActiveView, logout } = useStore();
 
     return (
         <aside className="fixed left-0 top-0 bottom-0 w-16 m-4 rounded-[2rem] glass-sidebar flex flex-col items-center py-8 gap-8 z-50">
@@ -48,9 +48,20 @@ export function Sidebar() {
             </nav>
 
             {/* Bottom section */}
-            <div className="mt-auto flex flex-col gap-6 items-center">
-                <button className="size-10 rounded-full hover:bg-white/40 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 transition-colors">
+            <div className="mt-auto flex flex-col gap-4 items-center">
+                <button
+                    className="size-10 rounded-full hover:bg-white/40 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 transition-colors"
+                    title="Settings"
+                >
                     <span className="material-symbols-outlined">settings</span>
+                </button>
+
+                <button
+                    onClick={logout}
+                    className="size-10 rounded-full hover:bg-red-500/10 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors"
+                    title="Sign out"
+                >
+                    <span className="material-symbols-outlined text-xl">logout</span>
                 </button>
 
                 <div className="relative group cursor-pointer">

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
 export type TimerMode = "Focus" | "Short Break" | "Long Break";
-export type ActiveView = 'home' | 'tasks' | 'timer' | 'music';
+export type ActiveView = 'home' | 'tasks' | 'timer' | 'music' | 'login' | 'signup';
 export type TaskStatus = 'todo' | 'inProgress' | 'review' | 'done';
 
 export interface CustomTimerDurations {
@@ -26,6 +26,11 @@ export interface Task {
 interface AppState {
     activeView: ActiveView;
     setActiveView: (view: ActiveView) => void;
+
+    // Auth State
+    isAuthenticated: boolean;
+    setIsAuthenticated: (auth: boolean) => void;
+    logout: () => void;
 
     // Timer State
     timerMode: TimerMode;
@@ -54,8 +59,12 @@ interface AppState {
 export const useStore = create<AppState>()(
     persist(
         (set) => ({
-            activeView: 'home',
+            activeView: 'login',
             setActiveView: (view) => set({ activeView: view }),
+
+            isAuthenticated: false,
+            setIsAuthenticated: (auth) => set({ isAuthenticated: auth, activeView: auth ? 'home' : 'login' }),
+            logout: () => set({ isAuthenticated: false, activeView: 'login' }),
 
             timerMode: "Focus",
             timerDurations: {
@@ -112,7 +121,8 @@ export const useStore = create<AppState>()(
                 timerMode: state.timerMode,
                 timerDurations: state.timerDurations,
                 autoStartBreaks: state.autoStartBreaks,
-                pomodorosCompleted: state.pomodorosCompleted
+                pomodorosCompleted: state.pomodorosCompleted,
+                isAuthenticated: state.isAuthenticated,
             }),
         }
     )

@@ -6,6 +6,8 @@ import { DashboardView } from "@/components/DashboardView";
 import { TaskRegistry } from "@/components/TaskRegistry";
 import { TimerView } from "@/components/TimerCard";
 import { AmbiancePlayer } from "@/components/AmbiancePlayer";
+import { LoginView } from "@/components/LoginView";
+import { SignupView } from "@/components/SignupView";
 import { useStore } from "@/store/useStore";
 
 const VIEW_TITLES: Record<string, string> = {
@@ -16,7 +18,13 @@ const VIEW_TITLES: Record<string, string> = {
 };
 
 export default function Home() {
-  const { activeView } = useStore();
+  const { activeView, isAuthenticated } = useStore();
+
+  // Auth screens — no sidebar/topbar
+  if (!isAuthenticated) {
+    if (activeView === "signup") return <SignupView />;
+    return <LoginView />;
+  }
 
   return (
     <div className="min-h-screen flex bg-background text-foreground relative overflow-hidden">

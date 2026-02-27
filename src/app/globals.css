@@ -12,8 +12,15 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
 
+  /* Auth screen colors */
+  --color-soft-pink: var(--soft-pink);
+  --color-muted-rose: var(--muted-rose);
+  --color-cream: var(--cream);
+
   --font-sans: var(--font-lexend);
   --font-heading: var(--font-poppins);
+  --font-display: var(--font-manrope);
+  --font-serif: var(--font-playfair);
 }
 
 :root {
@@ -31,6 +38,11 @@
   --muted-foreground: #71717a;
 
   --border: #e5e2e4;
+
+  /* Auth screen tokens */
+  --soft-pink: #fceef1;
+  --muted-rose: #9a4c5f;
+  --cream: #fcf8f9;
 }
 
 .dark {
@@ -47,6 +59,11 @@
   --muted-foreground: #a1a1aa;
 
   --border: #3a3a55;
+
+  /* Auth screen tokens (dark) */
+  --soft-pink: #3a1a25;
+  --muted-rose: #c77a90;
+  --cream: #2a2035;
 }
 
 body {
