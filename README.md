@@ -1,4 +1,4 @@
-# 🌟 Focus Hub - Productivity & Ambiance Player
+# 🌟 RN BOUND - Productivity & Ambiance Player
 
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
@@ -9,7 +9,7 @@
 
 ## ✨ Overview
 
-**Focus Hub** is a beautifully crafted Pomodoro timer, Kanban board, and Ambiance player, built with modern web technologies. Designed with a clean, glassmorphic aesthetic inspired by premium UI/UX designs, it provides users with a cohesive environment to manage their tasks and stay deeply focused.
+**RN BOUND** is a beautifully crafted Pomodoro timer, Kanban board, and Ambiance player, built with modern web technologies. Designed with a clean, glassmorphic aesthetic inspired by premium UI/UX designs, it provides users with a cohesive environment to manage their tasks and stay deeply focused.
 
 ---
 
