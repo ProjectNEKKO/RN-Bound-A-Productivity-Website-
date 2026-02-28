@@ -95,7 +95,7 @@ export function TimerView() {
 
     return (
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-            <div className="max-w-6xl mx-auto space-y-6">
+            <div className="space-y-6">
                 {/* Main timer area + side panels */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Left: Main Timer */}

@@ -102,7 +102,7 @@ export function AmbiancePlayer() {
     return (
         <div className="flex-1 overflow-y-auto flex flex-col">
             <div className="flex-1 p-6">
-                <div className="max-w-6xl mx-auto space-y-8">
+                <div className="space-y-8">
                     {/* Header */}
                     <div className="flex items-center gap-3">
                         <span className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Focus & Chill</span>

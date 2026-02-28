@@ -68,6 +68,7 @@ export function SignupView() {
                                 <div className="relative">
                                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">person</span>
                                     <input
+                                        autoComplete="name"
                                         className="w-full pl-12 pr-4 h-14 bg-white border border-[#fceef1] rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-300 text-slate-900"
                                         placeholder="Jane Doe"
                                         type="text"
@@ -81,6 +82,7 @@ export function SignupView() {
                                 <div className="relative">
                                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">mail</span>
                                     <input
+                                        autoComplete="username"
                                         className="w-full pl-12 pr-4 h-14 bg-white border border-[#fceef1] rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-300 text-slate-900"
                                         placeholder="jane@rn-bound.com"
                                         type="email"
@@ -94,6 +96,7 @@ export function SignupView() {
                                 <div className="relative">
                                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">lock</span>
                                     <input
+                                        autoComplete="new-password"
                                         className="w-full pl-12 pr-12 h-14 bg-white border border-[#fceef1] rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-slate-300 text-slate-900"
                                         placeholder="••••••••"
                                         type="password"

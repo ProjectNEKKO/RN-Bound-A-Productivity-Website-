@@ -48,7 +48,15 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${poppins.variable} ${lexend.variable} ${manrope.variable} ${playfair.variable} ${lexend.className} antialiased bg-background text-foreground transition-colors duration-300`}
+        className={[
+          poppins.variable,
+          lexend.variable,
+          manrope.variable,
+          playfair.variable,
+          lexend.className,
+          "antialiased bg-background text-foreground transition-colors duration-300"
+        ].join(" ")}
+        suppressHydrationWarning
       >
         <ThemeProvider
           attribute="class"

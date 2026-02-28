@@ -61,7 +61,7 @@ export function LoginView() {
                                     Email
                                 </label>
                                 <input
-                                    autoComplete="email"
+                                    autoComplete="username"
                                     className="block w-full rounded-xl border-0 py-4 px-4 text-slate-900 shadow-sm ring-1 ring-inset ring-primary/10 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 bg-white"
                                     id="login-email"
                                     name="email"

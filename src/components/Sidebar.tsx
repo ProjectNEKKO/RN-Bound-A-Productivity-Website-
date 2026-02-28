@@ -63,15 +63,6 @@ export function Sidebar() {
                 >
                     <span className="material-symbols-outlined text-xl">logout</span>
                 </button>
-
-                <div className="relative group cursor-pointer">
-                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <img
-                        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
-                        alt="User avatar"
-                        className="relative size-10 rounded-full object-cover ring-2 ring-white/50"
-                    />
-                </div>
             </div>
         </aside>
     );

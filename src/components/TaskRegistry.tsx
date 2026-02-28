@@ -80,7 +80,7 @@ export function TaskRegistry() {
 
     return (
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-            <div className="max-w-7xl mx-auto">
+            <div>
                 {/* ── Header ── */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
