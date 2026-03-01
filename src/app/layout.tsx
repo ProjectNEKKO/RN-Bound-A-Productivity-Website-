@@ -30,7 +30,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Focus Hub",
+  title: "RN Bound",
   description: "A beautifully crafted Pomodoro and Task registry.",
 };
 

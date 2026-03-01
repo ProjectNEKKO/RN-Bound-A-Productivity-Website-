@@ -7,31 +7,41 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Settings, X } from "lucide-react";
 
 export function SettingsModal() {
-    const { timerDurations, updateTimerDuration, autoStartBreaks, setAutoStartBreaks } = useStore();
+    const { timerDurations, updateTimerDuration, autoStartBreaks, setAutoStartBreaks, resetTimer } = useStore();
 
-    // Local state to hold input values before saving
-    const [localDurations, setLocalDurations] = useState(timerDurations);
+    // Local state to hold input values before saving (stored as minute strings for clean editing)
+    const [localDurations, setLocalDurations] = useState<Record<string, string>>({
+        "Focus": String(timerDurations["Focus"] / 60),
+        "Short Break": String(timerDurations["Short Break"] / 60),
+        "Long Break": String(timerDurations["Long Break"] / 60),
+    });
 
     // Sync local state when global state updates (e.g., on mount or when reset)
     useEffect(() => {
-        setLocalDurations(timerDurations);
+        setLocalDurations({
+            "Focus": String(timerDurations["Focus"] / 60),
+            "Short Break": String(timerDurations["Short Break"] / 60),
+            "Long Break": String(timerDurations["Long Break"] / 60),
+        });
     }, [timerDurations]);
 
     const handleSave = () => {
-        // Convert the local durations (in seconds) back to minutes when sending to updateTimerDuration
-        updateTimerDuration("Focus", localDurations["Focus"] / 60);
-        updateTimerDuration("Short Break", localDurations["Short Break"] / 60);
-        updateTimerDuration("Long Break", localDurations["Long Break"] / 60);
+        const focusMin = parseInt(localDurations["Focus"], 10) || 25;
+        const shortMin = parseInt(localDurations["Short Break"], 10) || 5;
+        const longMin = parseInt(localDurations["Long Break"], 10) || 15;
+        updateTimerDuration("Focus", focusMin);
+        updateTimerDuration("Short Break", shortMin);
+        updateTimerDuration("Long Break", longMin);
+        // Re-sync timeLeft for the currently active mode
+        resetTimer();
     };
 
     const handleChange = (mode: TimerMode, valueStr: string) => {
-        const value = parseInt(valueStr, 10);
-        if (!isNaN(value) && value > 0) {
-            setLocalDurations(prev => ({
-                ...prev,
-                [mode]: value * 60 // store internally as seconds
-            }));
-        }
+        // Allow empty string for intermediate editing states
+        setLocalDurations(prev => ({
+            ...prev,
+            [mode]: valueStr,
+        }));
     };
 
     return (
@@ -80,7 +90,7 @@ export function SettingsModal() {
                             </button>
                         </div>
 
-                        {(["Focus", "Short Break", "Long Break"] as TimerMode[]).map((mode) => (
+                        {(["Short Break", "Long Break"] as TimerMode[]).map((mode) => (
                             <div key={mode} className="flex items-center justify-between">
                                 <label htmlFor={`input-${mode}`} className="text-sm font-semibold text-foreground/80">
                                     {mode} <span className="text-foreground/40 font-normal ml-1">(min)</span>
@@ -90,8 +100,9 @@ export function SettingsModal() {
                                     type="number"
                                     min="1"
                                     max="120"
-                                    value={localDurations[mode] / 60}
+                                    value={localDurations[mode]}
                                     onChange={(e) => handleChange(mode, e.target.value)}
+                                    onFocus={(e) => e.target.select()}
                                     className="w-20 px-3 py-2 bg-background border border-border rounded-xl text-center font-medium focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                             </div>
