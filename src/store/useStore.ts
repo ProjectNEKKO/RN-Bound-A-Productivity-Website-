@@ -50,10 +50,11 @@ interface AppState {
 
     // Task State
     tasks: Task[];
-    addTask: (text: string, status?: TaskStatus, category?: string) => void;
+    addTask: (text: string, status?: TaskStatus, category?: string, description?: string, dueDate?: string, assignee?: string) => void;
     toggleTask: (id: string) => void;
     deleteTask: (id: string) => void;
     updateTaskStatus: (id: string, status: TaskStatus) => void;
+    updateTask: (id: string, updates: Partial<Omit<Task, 'id'>>) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -100,8 +101,8 @@ export const useStore = create<AppState>()(
             resetTimer: () => set((state) => ({ timeLeft: state.timerDurations[state.timerMode], isRunning: false })),
 
             tasks: [],
-            addTask: (text, status = 'todo', category) => set((state) => ({
-                tasks: [...state.tasks, { id: crypto.randomUUID(), text, completed: status === 'done', status, category }]
+            addTask: (text, status = 'todo', category, description, dueDate, assignee) => set((state) => ({
+                tasks: [...state.tasks, { id: crypto.randomUUID(), text, completed: status === 'done', status, category, description, dueDate, assignee }]
             })),
             toggleTask: (id) => set((state) => ({
                 tasks: state.tasks.map(t => t.id === id ? { ...t, completed: !t.completed, status: !t.completed ? 'done' : 'todo' } : t)
@@ -111,6 +112,9 @@ export const useStore = create<AppState>()(
             })),
             updateTaskStatus: (id, status) => set((state) => ({
                 tasks: state.tasks.map(t => t.id === id ? { ...t, status, completed: status === 'done' } : t)
+            })),
+            updateTask: (id, updates) => set((state) => ({
+                tasks: state.tasks.map(t => t.id === id ? { ...t, ...updates } : t)
             })),
         }),
         {

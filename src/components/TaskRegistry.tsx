@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Plus, Trash2, MoreHorizontal, SlidersHorizontal, Calendar, MessageSquare } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Plus, Trash2, MoreHorizontal, SlidersHorizontal, Calendar, MessageSquare, X, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore, TaskStatus, Task } from "@/store/useStore";
 
@@ -38,6 +38,16 @@ const ASSIGNEE_COLORS: Record<string, string> = {
     J: "bg-blue-500",
 };
 
+/* ─── Category options ─── */
+const CATEGORY_OPTIONS = ["design", "research", "marketing", "dev"];
+
+/* ─── Assignee options ─── */
+const ASSIGNEE_OPTIONS = [
+    { value: "S", label: "Sarah" },
+    { value: "M", label: "Marcus" },
+    { value: "J", label: "Jake" },
+];
+
 /* ─── All 4 columns including Done ─── */
 const columns: { id: TaskStatus; label: string; dotColor: string }[] = [
     { id: "todo", label: "To Do", dotColor: "bg-pink-500" },
@@ -46,10 +56,231 @@ const columns: { id: TaskStatus; label: string; dotColor: string }[] = [
     { id: "done", label: "Done", dotColor: "bg-emerald-500" },
 ];
 
+/* ─── Task Modal Component ─── */
+function TaskModal({
+    isOpen,
+    onClose,
+    task,
+    onSave,
+    onDelete,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    task: Task | null; // null = creating new task
+    onSave: (data: { text: string; description: string; status: TaskStatus; category: string; dueDate: string; assignee: string }) => void;
+    onDelete?: () => void;
+}) {
+    const [text, setText] = useState("");
+    const [description, setDescription] = useState("");
+    const [status, setStatus] = useState<TaskStatus>("todo");
+    const [category, setCategory] = useState("design");
+    const [dueDate, setDueDate] = useState("");
+    const [assignee, setAssignee] = useState("S");
+    const backdropRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            if (task) {
+                setText(task.text);
+                setDescription(task.description || "");
+                setStatus(task.status);
+                setCategory(task.category || "design");
+                setDueDate(task.dueDate || "");
+                setAssignee(task.assignee || "S");
+            } else {
+                setText("");
+                setDescription("");
+                setStatus("todo");
+                setCategory("design");
+                setDueDate("");
+                setAssignee("S");
+            }
+        }
+    }, [isOpen, task]);
+
+    useEffect(() => {
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === "Escape") onClose();
+        };
+        if (isOpen) window.addEventListener("keydown", handleEscape);
+        return () => window.removeEventListener("keydown", handleEscape);
+    }, [isOpen, onClose]);
+
+    if (!isOpen) return null;
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!text.trim()) return;
+        onSave({ text: text.trim(), description: description.trim(), status, category, dueDate: dueDate.trim(), assignee });
+        onClose();
+    };
+
+    const handleBackdropClick = (e: React.MouseEvent) => {
+        if (e.target === backdropRef.current) onClose();
+    };
+
+    const isEditing = !!task;
+
+    return (
+        <div
+            ref={backdropRef}
+            onClick={handleBackdropClick}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+        >
+            <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden animate-in zoom-in-95 duration-200">
+                {/* Modal Header */}
+                <div className="flex items-center justify-between p-5 border-b border-border">
+                    <h2 className="text-lg font-bold text-foreground">
+                        {isEditing ? "Edit Task" : "New Task"}
+                    </h2>
+                    <button
+                        onClick={onClose}
+                        className="size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                    >
+                        <X size={18} />
+                    </button>
+                </div>
+
+                {/* Modal Body */}
+                <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                    {/* Task Subject */}
+                    <div>
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                            Subject
+                        </label>
+                        <input
+                            type="text"
+                            value={text}
+                            onChange={(e) => setText(e.target.value)}
+                            placeholder="What needs to be done?"
+                            autoFocus
+                            className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                        />
+                    </div>
+
+                    {/* Task Body / Description */}
+                    <div>
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                            Description
+                        </label>
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Add more details about this task..."
+                            rows={3}
+                            className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
+                        />
+                    </div>
+
+                    {/* Row: Status + Category */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                                Status
+                            </label>
+                            <select
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value as TaskStatus)}
+                                className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none cursor-pointer"
+                            >
+                                {columns.map((col) => (
+                                    <option key={col.id} value={col.id}>{col.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                                Category
+                            </label>
+                            <select
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                                className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none cursor-pointer"
+                            >
+                                {CATEGORY_OPTIONS.map((cat) => (
+                                    <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Row: Due Date + Assignee */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                                Due Date
+                            </label>
+                            <input
+                                type="text"
+                                value={dueDate}
+                                onChange={(e) => setDueDate(e.target.value)}
+                                placeholder="e.g. Oct 24"
+                                className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                                Assignee
+                            </label>
+                            <select
+                                value={assignee}
+                                onChange={(e) => setAssignee(e.target.value)}
+                                className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none cursor-pointer"
+                            >
+                                {ASSIGNEE_OPTIONS.map((a) => (
+                                    <option key={a.value} value={a.value}>{a.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Footer Buttons */}
+                    <div className="flex items-center justify-between pt-2">
+                        <div>
+                            {isEditing && onDelete && (
+                                <button
+                                    type="button"
+                                    onClick={() => { onDelete(); onClose(); }}
+                                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                >
+                                    <Trash2 size={14} />
+                                    Delete
+                                </button>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="px-5 py-2 bg-primary text-white rounded-lg text-xs font-semibold hover:brightness-110 transition-all shadow-sm shadow-primary/20"
+                            >
+                                {isEditing ? "Save Changes" : "Create Task"}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
 export function TaskRegistry() {
     const [inputValue, setInputValue] = useState("");
     const [addingTo, setAddingTo] = useState<TaskStatus | null>(null);
-    const { tasks, addTask, deleteTask } = useStore();
+    const { tasks, addTask, deleteTask, updateTaskStatus, updateTask } = useStore();
+
+    /* ── Modal state ── */
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingTask, setEditingTask] = useState<Task | null>(null);
+
+    /* ── Drag state ── */
+    const [dragOverCol, setDragOverCol] = useState<TaskStatus | null>(null);
 
     /* Seed the board with sample tasks on first load if empty */
     useEffect(() => {
@@ -77,6 +308,58 @@ export function TaskRegistry() {
     };
 
     const getTasksByStatus = (status: TaskStatus) => tasks.filter(t => t.status === status);
+
+    /* ── Modal handlers ── */
+    const openNewTaskModal = () => {
+        setEditingTask(null);
+        setIsModalOpen(true);
+    };
+
+    const openEditTaskModal = (task: Task) => {
+        setEditingTask(task);
+        setIsModalOpen(true);
+    };
+
+    const handleModalSave = (data: { text: string; description: string; status: TaskStatus; category: string; dueDate: string; assignee: string }) => {
+        if (editingTask) {
+            updateTask(editingTask.id, {
+                text: data.text,
+                description: data.description,
+                status: data.status,
+                category: data.category,
+                dueDate: data.dueDate,
+                assignee: data.assignee,
+                completed: data.status === "done",
+            });
+        } else {
+            addTask(data.text, data.status, data.category, data.description, data.dueDate, data.assignee);
+        }
+    };
+
+    /* ── Drag and Drop handlers ── */
+    const handleDragStart = (e: React.DragEvent, taskId: string) => {
+        e.dataTransfer.setData("taskId", taskId);
+        e.dataTransfer.effectAllowed = "move";
+    };
+
+    const handleDragOver = (e: React.DragEvent, colId: TaskStatus) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        setDragOverCol(colId);
+    };
+
+    const handleDragLeave = () => {
+        setDragOverCol(null);
+    };
+
+    const handleDrop = (e: React.DragEvent, colId: TaskStatus) => {
+        e.preventDefault();
+        const taskId = e.dataTransfer.getData("taskId");
+        if (taskId) {
+            updateTaskStatus(taskId, colId);
+        }
+        setDragOverCol(null);
+    };
 
     return (
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
@@ -110,7 +393,7 @@ export function TaskRegistry() {
                         </button>
 
                         <button
-                            onClick={() => setAddingTo("todo")}
+                            onClick={openNewTaskModal}
                             className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:brightness-110 transition-all shadow-sm shadow-primary/20"
                         >
                             <Plus size={16} />
@@ -125,8 +408,15 @@ export function TaskRegistry() {
                     {columns.map((col) => {
                         const colTasks = getTasksByStatus(col.id);
                         const isDone = col.id === "done";
+                        const isDropTarget = dragOverCol === col.id;
                         return (
-                            <div key={col.id} className="flex flex-col min-w-0">
+                            <div
+                                key={col.id}
+                                className="flex flex-col min-w-0"
+                                onDragOver={(e) => handleDragOver(e, col.id)}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => handleDrop(e, col.id)}
+                            >
                                 {/* Column header */}
                                 <div className="flex items-center justify-between mb-3 px-1">
                                     <div className="flex items-center gap-2">
@@ -141,28 +431,40 @@ export function TaskRegistry() {
                                     </button>
                                 </div>
 
-                                {/* Cards */}
-                                <div className="flex flex-col gap-3 flex-1 min-h-[200px]">
+                                {/* Cards container with drop zone highlight */}
+                                <div className={cn(
+                                    "flex flex-col gap-3 flex-1 min-h-[200px] rounded-xl p-1 transition-all duration-200",
+                                    isDropTarget && "bg-primary/5 border-2 border-dashed border-primary/30",
+                                    !isDropTarget && "border-2 border-transparent"
+                                )}>
                                     {colTasks.map((task) => {
                                         const catColor = CATEGORY_COLORS[task.category || "design"] || CATEGORY_COLORS.design;
                                         const avatarColor = ASSIGNEE_COLORS[task.assignee || "S"] || "bg-muted";
                                         return (
                                             <div
                                                 key={task.id}
+                                                draggable
+                                                onDragStart={(e) => handleDragStart(e, task.id)}
+                                                onClick={() => openEditTaskModal(task)}
                                                 className={cn(
-                                                    "bg-card rounded-xl border border-border p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group",
+                                                    "bg-card rounded-xl border border-border p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group cursor-pointer",
                                                     isDone && "opacity-60"
                                                 )}
                                             >
-                                                {/* Category badge */}
-                                                {task.category && (
-                                                    <span className={cn(
-                                                        "text-[10px] font-bold uppercase px-2 py-0.5 rounded-md inline-block mb-2",
-                                                        catColor.bg, catColor.text
-                                                    )}>
-                                                        {task.category}
-                                                    </span>
-                                                )}
+                                                {/* Drag handle + Category badge */}
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <GripVertical size={14} className="text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing shrink-0" />
+                                                        {task.category && (
+                                                            <span className={cn(
+                                                                "text-[10px] font-bold uppercase px-2 py-0.5 rounded-md inline-block",
+                                                                catColor.bg, catColor.text
+                                                            )}>
+                                                                {task.category}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
 
                                                 {/* Title */}
                                                 <h4 className={cn(
@@ -202,7 +504,7 @@ export function TaskRegistry() {
                                                     <div className="flex items-center gap-1.5">
                                                         {/* Delete (hover reveal) */}
                                                         <button
-                                                            onClick={() => deleteTask(task.id)}
+                                                            onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}
                                                             className="text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                                                         >
                                                             <Trash2 size={13} />
@@ -307,6 +609,15 @@ export function TaskRegistry() {
                     </div>
                 </div>
             </div>
+
+            {/* ── Task Modal ── */}
+            <TaskModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                task={editingTask}
+                onSave={handleModalSave}
+                onDelete={editingTask ? () => deleteTask(editingTask.id) : undefined}
+            />
         </div>
     );
 }
