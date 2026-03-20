@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Lexend, Manrope, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/components/AuthProvider";
 
 const poppins = Poppins({
@@ -58,15 +57,9 @@ export default function RootLayout({
         ].join(" ")}
         suppressHydrationWarning
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          disableTransitionOnChange
-        >
           <AuthProvider>
             {children}
           </AuthProvider>
-        </ThemeProvider>
       </body>
     </html>
   );

@@ -7,13 +7,13 @@ import { useStore, TaskStatus, Task, Project } from "@/store/useStore";
 
 /* ─── Seed Tasks — pre-populate the board on first load ─── */
 const SEED_TASKS: Omit<Task, "id" | "projectId">[] = [
-    { text: "Create brand guidelines for mobile app", description: "Define typography, color palette, and component spacing for the world.", status: "todo", completed: false, category: "design", dueDate: "Oct 24", commentCount: 0, assignee: "S" },
-    { text: "Social media assets for launch", description: "", status: "todo", completed: false, category: "marketing", dueDate: "High Priority", commentCount: 0, assignee: "M" },
-    { text: "API integration for dashboard heroic boxes", description: "Full stack", status: "inProgress", completed: false, category: "dev", dueDate: "", commentCount: 2, assignee: "J" },
-    { text: "Figma Component Library Update", description: "", status: "inProgress", completed: false, category: "design", dueDate: "14 Storybes", commentCount: 0, assignee: "S" },
-    { text: "Landing page copy review", description: "Review all landing page sections and finalise wording.", status: "review", completed: false, category: "marketing", dueDate: "Oct 28", commentCount: 1, assignee: "M" },
-    { text: "Accessibility audit report", description: "Run WCAG 2.1 AA audit on all public-facing pages.", status: "review", completed: false, category: "research", dueDate: "Nov 1", commentCount: 0, assignee: "J" },
-    { text: "Onboarding flow illustrations", description: "Final set of 5 illustrations delivered.", status: "done", completed: true, category: "design", dueDate: "Oct 18", commentCount: 3, assignee: "S" },
+    { text: "Create brand guidelines for mobile app", description: "Define typography, color palette, and component spacing for the world.", status: "todo", completed: false, category: "design", dueDate: "Oct 24", commentCount: 0 },
+    { text: "Social media assets for launch", description: "", status: "todo", completed: false, category: "marketing", dueDate: "High Priority", commentCount: 0 },
+    { text: "API integration for dashboard heroic boxes", description: "Full stack", status: "inProgress", completed: false, category: "dev", dueDate: "", commentCount: 2 },
+    { text: "Figma Component Library Update", description: "", status: "inProgress", completed: false, category: "design", dueDate: "14 Storybes", commentCount: 0 },
+    { text: "Landing page copy review", description: "Review all landing page sections and finalise wording.", status: "review", completed: false, category: "marketing", dueDate: "Oct 28", commentCount: 1 },
+    { text: "Accessibility audit report", description: "Run WCAG 2.1 AA audit on all public-facing pages.", status: "review", completed: false, category: "research", dueDate: "Nov 1", commentCount: 0 },
+    { text: "Onboarding flow illustrations", description: "Final set of 5 illustrations delivered.", status: "done", completed: true, category: "design", dueDate: "Oct 18", commentCount: 3 },
 ];
 
 /* ─── Category badge colors ─── */
@@ -24,22 +24,10 @@ const CATEGORY_COLORS: Record<string, { bg: string; text: string }> = {
     dev: { bg: "bg-blue-50 dark:bg-blue-900/20", text: "text-blue-600" },
 };
 
-/* ─── Assignee avatar colors ─── */
-const ASSIGNEE_COLORS: Record<string, string> = {
-    S: "bg-primary",
-    M: "bg-amber-500",
-    J: "bg-blue-500",
-};
-
 /* ─── Category options ─── */
 const CATEGORY_OPTIONS = ["design", "research", "marketing", "dev"];
 
-/* ─── Assignee options ─── */
-const ASSIGNEE_OPTIONS = [
-    { value: "S", label: "Sarah" },
-    { value: "M", label: "Marcus" },
-    { value: "J", label: "Jake" },
-];
+
 
 /* ─── All 4 columns including Done ─── */
 const columns: { id: TaskStatus; label: string; dotColor: string }[] = [
@@ -62,7 +50,7 @@ function TaskModal({
     isOpen: boolean;
     onClose: () => void;
     task: Task | null;
-    onSave: (data: { text: string; description: string; status: TaskStatus; category: string; dueDate: string; assignee: string }) => void;
+    onSave: (data: { text: string; description: string; status: TaskStatus; category: string; dueDate: string }) => void;
     onDelete?: () => void;
 }) {
     const [text, setText] = useState("");
@@ -70,7 +58,6 @@ function TaskModal({
     const [status, setStatus] = useState<TaskStatus>("todo");
     const [category, setCategory] = useState("design");
     const [dueDate, setDueDate] = useState("");
-    const [assignee, setAssignee] = useState("S");
     const backdropRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -81,14 +68,12 @@ function TaskModal({
                 setStatus(task.status);
                 setCategory(task.category || "design");
                 setDueDate(task.dueDate || "");
-                setAssignee(task.assignee || "S");
             } else {
                 setText("");
                 setDescription("");
-                setStatus("todo");
+                // Status is pre-populated via props or remains 'todo'
                 setCategory("design");
                 setDueDate("");
-                setAssignee("S");
             }
         }
     }, [isOpen, task]);
@@ -106,7 +91,7 @@ function TaskModal({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!text.trim()) return;
-        onSave({ text: text.trim(), description: description.trim(), status, category, dueDate: dueDate.trim(), assignee });
+        onSave({ text: text.trim(), description: description.trim(), status, category, dueDate: dueDate.trim() });
         onClose();
     };
 
@@ -172,15 +157,6 @@ function TaskModal({
                             <input type="text" value={dueDate} onChange={(e) => setDueDate(e.target.value)} placeholder="e.g. Oct 24"
                                 className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
                         </div>
-                        <div>
-                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Assignee</label>
-                            <select value={assignee} onChange={(e) => setAssignee(e.target.value)}
-                                className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none cursor-pointer">
-                                {ASSIGNEE_OPTIONS.map((a) => (
-                                    <option key={a.value} value={a.value}>{a.label}</option>
-                                ))}
-                            </select>
-                        </div>
                     </div>
 
                     <div className="flex items-center justify-between pt-2">
@@ -212,7 +188,7 @@ function TaskModal({
 /* ═══════════════════════════════════════════════════════════════
    New Project Modal Component
    ═══════════════════════════════════════════════════════════════ */
-function NewProjectModal({
+export function NewProjectModal({
     isOpen,
     onClose,
     onSave,
@@ -374,8 +350,6 @@ function ProjectSelector({
    Main TaskRegistry Component
    ═══════════════════════════════════════════════════════════════ */
 export function TaskRegistry() {
-    const [inputValue, setInputValue] = useState("");
-    const [addingTo, setAddingTo] = useState<TaskStatus | null>(null);
     const { tasks, addTask, deleteTask, updateTaskStatus, updateTask, projects, activeProjectId, addProject, deleteProject, setActiveProject } = useStore();
 
     /* ── Modal state ── */
@@ -405,34 +379,24 @@ export function TaskRegistry() {
     const activeProject = projects.find(p => p.id === activeProjectId);
     const activeTasks = tasks.filter(t => t.projectId === activeProjectId);
 
-    const handleAdd = (status: TaskStatus = "todo") => {
-        if (inputValue.trim()) {
-            addTask(inputValue.trim(), status, "design");
-            setInputValue("");
-            setAddingTo(null);
-        }
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter") handleAdd(addingTo || "todo");
-        if (e.key === "Escape") setAddingTo(null);
-    };
-
+    /* ── Modal handlers ── */
     const getTasksByStatus = (status: TaskStatus) => activeTasks.filter(t => t.status === status);
 
-    /* ── Modal handlers ── */
-    const openNewTaskModal = () => { setEditingTask(null); setIsTaskModalOpen(true); };
+    const openNewTaskModal = (initialStatus?: TaskStatus) => {
+        setEditingTask(initialStatus ? { ...SEED_TASKS[0], text: "", description: "", dueDate: "", id: "", projectId: activeProjectId!, status: initialStatus, completed: initialStatus === "done" } : null);
+        setIsTaskModalOpen(true);
+    };
     const openEditTaskModal = (task: Task) => { setEditingTask(task); setIsTaskModalOpen(true); };
 
-    const handleModalSave = (data: { text: string; description: string; status: TaskStatus; category: string; dueDate: string; assignee: string }) => {
-        if (editingTask) {
+    const handleModalSave = (data: { text: string; description: string; status: TaskStatus; category: string; dueDate: string }) => {
+        if (editingTask && editingTask.id !== "") {
             updateTask(editingTask.id, {
                 text: data.text, description: data.description, status: data.status,
-                category: data.category, dueDate: data.dueDate, assignee: data.assignee,
+                category: data.category, dueDate: data.dueDate,
                 completed: data.status === "done",
             });
         } else {
-            addTask(data.text, data.status, data.category, data.description, data.dueDate, data.assignee);
+            addTask(data.text, data.status, data.category, data.description, data.dueDate);
         }
     };
 
@@ -488,42 +452,21 @@ export function TaskRegistry() {
                 {/* ── Header ── */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-                            <span>Kanban Board</span>
-                            <span>/</span>
-                            <span>Projects</span>
-                            <span>/</span>
-                            <ProjectSelector
-                                projects={projects}
-                                activeProjectId={activeProjectId}
-                                onSelect={setActiveProject}
-                                onNewProject={() => setIsProjectModalOpen(true)}
-                                onDeleteProject={deleteProject}
-                            />
-                        </div>
+
                         <h1 className="text-2xl font-bold text-foreground">
                             {activeProject?.name || "Project Tasks"}
                         </h1>
                         {activeProject?.description && (
                             <p className="text-sm text-muted-foreground mt-0.5">{activeProject.description}</p>
                         )}
-                    </div>
-                    <div className="flex items-center gap-3">
-                        {/* Avatar stack */}
-                        <div className="flex -space-x-2">
-                            {[{ i: "S", c: "bg-primary" }, { i: "M", c: "bg-amber-500" }, { i: "J", c: "bg-blue-500" }].map((a, idx) => (
-                                <div key={idx} className={cn("size-8 rounded-full border-2 border-card flex items-center justify-center text-xs font-bold text-white", a.c)}>
-                                    {a.i}
-                                </div>
-                            ))}
                         </div>
-
+                    <div className="flex items-center gap-3">
                         <button className="size-9 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all">
                             <SlidersHorizontal size={16} />
                         </button>
 
                         <button
-                            onClick={openNewTaskModal}
+                            onClick={() => openNewTaskModal()}
                             className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:brightness-110 transition-all shadow-sm shadow-primary/20"
                         >
                             <Plus size={16} />
@@ -568,7 +511,6 @@ export function TaskRegistry() {
                                 )}>
                                     {colTasks.map((task) => {
                                         const catColor = CATEGORY_COLORS[task.category || "design"] || CATEGORY_COLORS.design;
-                                        const avatarColor = ASSIGNEE_COLORS[task.assignee || "S"] || "bg-muted";
                                         return (
                                             <div
                                                 key={task.id}
@@ -617,35 +559,17 @@ export function TaskRegistry() {
                                                             className="text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
                                                             <Trash2 size={13} />
                                                         </button>
-                                                        {task.assignee && (
-                                                            <div className={cn("size-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white", avatarColor)}>
-                                                                {task.assignee}
-                                                            </div>
-                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
                                         );
                                     })}
 
-                                    {/* ── Add card inline ── */}
-                                    {addingTo === col.id ? (
-                                        <div className="bg-card rounded-xl border border-primary/30 p-3 shadow-sm">
-                                            <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={handleKeyDown} autoFocus
-                                                placeholder="Task name..." className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none mb-2" />
-                                            <div className="flex gap-2">
-                                                <button onClick={() => handleAdd(col.id)}
-                                                    className="px-3 py-1 bg-primary text-white rounded-md text-xs font-semibold hover:brightness-110 transition-all">Add</button>
-                                                <button onClick={() => setAddingTo(null)}
-                                                    className="px-3 py-1 text-muted-foreground text-xs font-semibold hover:text-foreground transition-colors">Cancel</button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <button onClick={() => setAddingTo(col.id)}
-                                            className="flex items-center justify-center gap-2 py-2.5 border-2 border-dashed border-border rounded-xl text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 text-xs font-medium transition-all">
-                                            <Plus size={14} /> Add card
-                                        </button>
-                                    )}
+                                    {/* ── Add card directly via Modal ── */}
+                                    <button onClick={() => openNewTaskModal(col.id)}
+                                        className="flex items-center justify-center gap-2 py-2.5 border-2 border-dashed border-border rounded-xl text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 text-xs font-medium transition-all">
+                                        <Plus size={14} /> Add card
+                                    </button>
                                 </div>
                             </div>
                         );

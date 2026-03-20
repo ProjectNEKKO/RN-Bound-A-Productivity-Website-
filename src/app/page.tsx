@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { TopBar } from "@/components/TopBar";
 import { DashboardView } from "@/components/DashboardView";
 import { TaskRegistry } from "@/components/TaskRegistry";
+import { ProjectsView } from "@/components/ProjectsView";
 import { TimerView } from "@/components/TimerCard";
 import { AmbiancePlayer } from "@/components/AmbiancePlayer";
 import { LoginView } from "@/components/LoginView";
@@ -12,6 +13,7 @@ import { useStore } from "@/store/useStore";
 
 const VIEW_TITLES: Record<string, string> = {
   home: "Dashboard Overview",
+  projects: "Projects",
   tasks: "Kanban Board",
   timer: "Focus Timer",
   music: "Ambiance",
@@ -36,13 +38,14 @@ export default function Home() {
       <Sidebar />
 
       {/* Main content area — offset for the floating sidebar (w-24 + m-4 = 112px) */}
-      <div className="relative z-10 ml-[112px] flex h-screen flex-1 flex-col overflow-hidden py-4 pr-4">
+      <div className="relative ml-[112px] flex h-screen flex-1 flex-col overflow-hidden py-4 pr-4">
         <div className="mx-auto flex w-full max-w-[1560px] min-w-0 flex-1 flex-col">
           {/* Top bar */}
           <TopBar title={VIEW_TITLES[activeView] || "Dashboard"} />
 
           {/* View content */}
           {activeView === "home" && <DashboardView />}
+          {activeView === "projects" && <ProjectsView />}
           {activeView === "tasks" && <TaskRegistry />}
           {activeView === "timer" && <TimerView />}
           {activeView === "music" && <AmbiancePlayer />}

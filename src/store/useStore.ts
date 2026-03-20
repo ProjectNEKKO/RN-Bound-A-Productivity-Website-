@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
 export type TimerMode = "Focus" | "Short Break" | "Long Break";
-export type ActiveView = 'home' | 'tasks' | 'timer' | 'music' | 'login' | 'signup';
+export type ActiveView = 'home' | 'projects' | 'tasks' | 'timer' | 'music' | 'login' | 'signup';
 export type TaskStatus = 'todo' | 'inProgress' | 'review' | 'done';
 
 export interface CustomTimerDurations {
@@ -28,7 +28,6 @@ export interface Task {
     description?: string;
     dueDate?: string;
     commentCount?: number;
-    assignee?: string;
 }
 
 interface AppState {
@@ -66,7 +65,7 @@ interface AppState {
 
     // Task State
     tasks: Task[];
-    addTask: (text: string, status?: TaskStatus, category?: string, description?: string, dueDate?: string, assignee?: string) => void;
+    addTask: (text: string, status?: TaskStatus, category?: string, description?: string, dueDate?: string) => void;
     toggleTask: (id: string) => void;
     deleteTask: (id: string) => void;
     updateTaskStatus: (id: string, status: TaskStatus) => void;
@@ -145,11 +144,11 @@ export const useStore = create<AppState>()(
 
             // Task State
             tasks: [],
-            addTask: (text, status = 'todo', category, description, dueDate, assignee) => set((state) => {
+            addTask: (text, status = 'todo', category, description, dueDate) => set((state) => {
                 const projectId = state.activeProjectId;
                 if (!projectId) return state;
                 return {
-                    tasks: [...state.tasks, { id: crypto.randomUUID(), text, completed: status === 'done', status, projectId, category, description, dueDate, assignee }]
+                    tasks: [...state.tasks, { id: crypto.randomUUID(), text, completed: status === 'done', status, projectId, category, description, dueDate }]
                 };
             }),
             toggleTask: (id) => set((state) => ({

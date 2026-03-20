@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 
 const navItems: { id: ActiveView; icon: string; filledIcon: string; label: string }[] = [
     { id: "home", icon: "home", filledIcon: "home", label: "Home" },
+    { id: "projects", icon: "folder", filledIcon: "folder", label: "Projects" },
     { id: "tasks", icon: "check_circle", filledIcon: "check_circle", label: "Tasks" },
     { id: "timer", icon: "timer", filledIcon: "timer", label: "Timer" },
     { id: "music", icon: "music_note", filledIcon: "music_note", label: "Music" },
@@ -14,7 +15,7 @@ export function Sidebar() {
     const { activeView, setActiveView, logout } = useStore();
 
     return (
-        <aside className="fixed bottom-0 left-0 top-0 z-50 m-4 flex w-16 flex-col items-center rounded-[2rem] bg-white/72 py-5 shadow-[0_18px_40px_rgba(133,102,120,0.08)] ring-1 ring-white/80">
+        <aside className="fixed inset-y-0 left-0 z-40 w-24 flex flex-col items-center py-6 bg-background border-r border-border transition-all">
             <button
                 onClick={() => setActiveView("home")}
                 className="mb-6 flex size-11 items-center justify-center rounded-full bg-[#fff7f9] text-[#b07a89] shadow-inner"
