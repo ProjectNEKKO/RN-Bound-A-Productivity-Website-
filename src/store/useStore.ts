@@ -11,11 +11,19 @@ export interface CustomTimerDurations {
     "Long Break": number;
 }
 
+export interface Project {
+    id: string;
+    name: string;
+    description?: string;
+    color?: string;
+}
+
 export interface Task {
     id: string;
     text: string;
     completed: boolean;
     status: TaskStatus;
+    projectId: string;
     category?: string;
     description?: string;
     dueDate?: string;
@@ -48,6 +56,14 @@ interface AppState {
     setIsRunning: (isRunning: boolean) => void;
     resetTimer: () => void;
 
+    // Project State
+    projects: Project[];
+    activeProjectId: string | null;
+    addProject: (name: string, description?: string, color?: string) => string;
+    deleteProject: (id: string) => void;
+    updateProject: (id: string, updates: Partial<Omit<Project, 'id'>>) => void;
+    setActiveProject: (id: string) => void;
+
     // Task State
     tasks: Task[];
     addTask: (text: string, status?: TaskStatus, category?: string, description?: string, dueDate?: string, assignee?: string) => void;
@@ -59,7 +75,7 @@ interface AppState {
 
 export const useStore = create<AppState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             activeView: 'login',
             setActiveView: (view) => set({ activeView: view }),
 
@@ -100,10 +116,42 @@ export const useStore = create<AppState>()(
             setIsRunning: (isRunning) => set({ isRunning }),
             resetTimer: () => set((state) => ({ timeLeft: state.timerDurations[state.timerMode], isRunning: false })),
 
-            tasks: [],
-            addTask: (text, status = 'todo', category, description, dueDate, assignee) => set((state) => ({
-                tasks: [...state.tasks, { id: crypto.randomUUID(), text, completed: status === 'done', status, category, description, dueDate, assignee }]
+            // Project State
+            projects: [],
+            activeProjectId: null,
+            addProject: (name, description, color) => {
+                const id = crypto.randomUUID();
+                set((state) => ({
+                    projects: [...state.projects, { id, name, description, color }],
+                    activeProjectId: id,
+                }));
+                return id;
+            },
+            deleteProject: (id) => set((state) => {
+                const remaining = state.projects.filter(p => p.id !== id);
+                const newActiveId = state.activeProjectId === id
+                    ? (remaining.length > 0 ? remaining[0].id : null)
+                    : state.activeProjectId;
+                return {
+                    projects: remaining,
+                    activeProjectId: newActiveId,
+                    tasks: state.tasks.filter(t => t.projectId !== id),
+                };
+            }),
+            updateProject: (id, updates) => set((state) => ({
+                projects: state.projects.map(p => p.id === id ? { ...p, ...updates } : p),
             })),
+            setActiveProject: (id) => set({ activeProjectId: id }),
+
+            // Task State
+            tasks: [],
+            addTask: (text, status = 'todo', category, description, dueDate, assignee) => set((state) => {
+                const projectId = state.activeProjectId;
+                if (!projectId) return state;
+                return {
+                    tasks: [...state.tasks, { id: crypto.randomUUID(), text, completed: status === 'done', status, projectId, category, description, dueDate, assignee }]
+                };
+            }),
             toggleTask: (id) => set((state) => ({
                 tasks: state.tasks.map(t => t.id === id ? { ...t, completed: !t.completed, status: !t.completed ? 'done' : 'todo' } : t)
             })),
@@ -122,6 +170,8 @@ export const useStore = create<AppState>()(
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
                 tasks: state.tasks,
+                projects: state.projects,
+                activeProjectId: state.activeProjectId,
                 timerMode: state.timerMode,
                 timerDurations: state.timerDurations,
                 autoStartBreaks: state.autoStartBreaks,

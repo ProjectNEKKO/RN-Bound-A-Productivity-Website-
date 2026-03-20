@@ -25,19 +25,19 @@
 
 :root {
   /* LEA Light Mode */
-  --background: #f8f6f7;
-  --foreground: #1a1a2e;
+  --background: #f7f2f4;
+  --foreground: #2d2437;
 
   --card: #ffffff;
-  --card-foreground: #1a1a2e;
+  --card-foreground: #2d2437;
 
   --primary: #e8308c;
   --primary-foreground: #ffffff;
 
-  --muted: #f1eef0;
-  --muted-foreground: #71717a;
+  --muted: #f1ecee;
+  --muted-foreground: #8f8791;
 
-  --border: #e5e2e4;
+  --border: #ece4e7;
 
   /* Auth screen tokens */
   --soft-pink: #fceef1;
@@ -67,7 +67,10 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at top left, rgba(248, 217, 226, 0.45), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(228, 218, 238, 0.35), transparent 24%),
+    var(--background);
   color: var(--foreground);
   font-family: var(--font-lexend), system-ui, sans-serif;
 }
@@ -137,39 +140,13 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* LEA Glass Panels */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.68);
 }
 
 .dark .glass-panel {
-  background: rgba(33, 17, 25, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* LEA Glass Sidebar */
-.glass-sidebar {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
-}
-
-.dark .glass-sidebar {
-  background: rgba(30, 20, 30, 0.4);
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* LEA Nav Item Active */
-.nav-item-active {
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 4px 12px rgba(232, 48, 140, 0.15);
-  color: #e8308c;
-}
-
-.dark .nav-item-active {
-  background: rgba(232, 48, 140, 0.15);
-  color: #fff;
+  background: rgba(33, 17, 25, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }

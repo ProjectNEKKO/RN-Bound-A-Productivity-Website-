@@ -1,19 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Plus, Trash2, MoreHorizontal, SlidersHorizontal, Calendar, MessageSquare, X, GripVertical } from "lucide-react";
+import { Plus, Trash2, MoreHorizontal, SlidersHorizontal, Calendar, MessageSquare, X, GripVertical, ChevronDown, FolderPlus, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useStore, TaskStatus, Task } from "@/store/useStore";
-
-/* ─── Placeholder Activity Feed ─── */
-const PLACEHOLDER_ACTIVITY = [
-    { user: "Sarah", action: "moved Brand guidelines to To Do", time: "2 hours ago", avatar: "S", color: "bg-primary" },
-    { user: "Marcus", action: 'commented on Landing page copy: "Looks great, let\'s ship it!"', time: "5 hours ago", avatar: "M", color: "bg-amber-500" },
-    { user: "Automation", action: "archived 4 completed tasks from previous sprint", time: "Yesterday at 11:45 PM", avatar: "A", color: "bg-muted text-muted-foreground" },
-];
+import { useStore, TaskStatus, Task, Project } from "@/store/useStore";
 
 /* ─── Seed Tasks — pre-populate the board on first load ─── */
-const SEED_TASKS: Omit<Task, "id">[] = [
+const SEED_TASKS: Omit<Task, "id" | "projectId">[] = [
     { text: "Create brand guidelines for mobile app", description: "Define typography, color palette, and component spacing for the world.", status: "todo", completed: false, category: "design", dueDate: "Oct 24", commentCount: 0, assignee: "S" },
     { text: "Social media assets for launch", description: "", status: "todo", completed: false, category: "marketing", dueDate: "High Priority", commentCount: 0, assignee: "M" },
     { text: "API integration for dashboard heroic boxes", description: "Full stack", status: "inProgress", completed: false, category: "dev", dueDate: "", commentCount: 2, assignee: "J" },
@@ -56,7 +49,9 @@ const columns: { id: TaskStatus; label: string; dotColor: string }[] = [
     { id: "done", label: "Done", dotColor: "bg-emerald-500" },
 ];
 
-/* ─── Task Modal Component ─── */
+/* ═══════════════════════════════════════════════════════════════
+   Task Modal Component
+   ═══════════════════════════════════════════════════════════════ */
 function TaskModal({
     isOpen,
     onClose,
@@ -66,7 +61,7 @@ function TaskModal({
 }: {
     isOpen: boolean;
     onClose: () => void;
-    task: Task | null; // null = creating new task
+    task: Task | null;
     onSave: (data: { text: string; description: string; status: TaskStatus; category: string; dueDate: string; assignee: string }) => void;
     onDelete?: () => void;
 }) {
@@ -128,75 +123,42 @@ function TaskModal({
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
         >
             <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden animate-in zoom-in-95 duration-200">
-                {/* Modal Header */}
                 <div className="flex items-center justify-between p-5 border-b border-border">
                     <h2 className="text-lg font-bold text-foreground">
                         {isEditing ? "Edit Task" : "New Task"}
                     </h2>
-                    <button
-                        onClick={onClose}
-                        className="size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-                    >
+                    <button onClick={onClose} className="size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
                         <X size={18} />
                     </button>
                 </div>
 
-                {/* Modal Body */}
                 <form onSubmit={handleSubmit} className="p-5 space-y-4">
-                    {/* Task Subject */}
                     <div>
-                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
-                            Subject
-                        </label>
-                        <input
-                            type="text"
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            placeholder="What needs to be done?"
-                            autoFocus
-                            className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                        />
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Subject</label>
+                        <input type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="What needs to be done?" autoFocus
+                            className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
                     </div>
 
-                    {/* Task Body / Description */}
                     <div>
-                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
-                            Description
-                        </label>
-                        <textarea
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Add more details about this task..."
-                            rows={3}
-                            className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
-                        />
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Description</label>
+                        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Add more details about this task..." rows={3}
+                            className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none" />
                     </div>
 
-                    {/* Row: Status + Category */}
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
-                                Status
-                            </label>
-                            <select
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value as TaskStatus)}
-                                className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none cursor-pointer"
-                            >
+                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Status</label>
+                            <select value={status} onChange={(e) => setStatus(e.target.value as TaskStatus)}
+                                className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none cursor-pointer">
                                 {columns.map((col) => (
                                     <option key={col.id} value={col.id}>{col.label}</option>
                                 ))}
                             </select>
                         </div>
                         <div>
-                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
-                                Category
-                            </label>
-                            <select
-                                value={category}
-                                onChange={(e) => setCategory(e.target.value)}
-                                className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none cursor-pointer"
-                            >
+                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Category</label>
+                            <select value={category} onChange={(e) => setCategory(e.target.value)}
+                                className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none cursor-pointer">
                                 {CATEGORY_OPTIONS.map((cat) => (
                                     <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
                                 ))}
@@ -204,29 +166,16 @@ function TaskModal({
                         </div>
                     </div>
 
-                    {/* Row: Due Date + Assignee */}
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
-                                Due Date
-                            </label>
-                            <input
-                                type="text"
-                                value={dueDate}
-                                onChange={(e) => setDueDate(e.target.value)}
-                                placeholder="e.g. Oct 24"
-                                className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                            />
+                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Due Date</label>
+                            <input type="text" value={dueDate} onChange={(e) => setDueDate(e.target.value)} placeholder="e.g. Oct 24"
+                                className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
                         </div>
                         <div>
-                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
-                                Assignee
-                            </label>
-                            <select
-                                value={assignee}
-                                onChange={(e) => setAssignee(e.target.value)}
-                                className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none cursor-pointer"
-                            >
+                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Assignee</label>
+                            <select value={assignee} onChange={(e) => setAssignee(e.target.value)}
+                                className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none cursor-pointer">
                                 {ASSIGNEE_OPTIONS.map((a) => (
                                     <option key={a.value} value={a.value}>{a.label}</option>
                                 ))}
@@ -234,32 +183,22 @@ function TaskModal({
                         </div>
                     </div>
 
-                    {/* Footer Buttons */}
                     <div className="flex items-center justify-between pt-2">
                         <div>
                             {isEditing && onDelete && (
-                                <button
-                                    type="button"
-                                    onClick={() => { onDelete(); onClose(); }}
-                                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                                >
-                                    <Trash2 size={14} />
-                                    Delete
+                                <button type="button" onClick={() => { onDelete(); onClose(); }}
+                                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
+                                    <Trash2 size={14} /> Delete
                                 </button>
                             )}
                         </div>
                         <div className="flex items-center gap-2">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all"
-                            >
+                            <button type="button" onClick={onClose}
+                                className="px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all">
                                 Cancel
                             </button>
-                            <button
-                                type="submit"
-                                className="px-5 py-2 bg-primary text-white rounded-lg text-xs font-semibold hover:brightness-110 transition-all shadow-sm shadow-primary/20"
-                            >
+                            <button type="submit"
+                                className="px-5 py-2 bg-primary text-white rounded-lg text-xs font-semibold hover:brightness-110 transition-all shadow-sm shadow-primary/20">
                                 {isEditing ? "Save Changes" : "Create Task"}
                             </button>
                         </div>
@@ -270,29 +209,201 @@ function TaskModal({
     );
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   New Project Modal Component
+   ═══════════════════════════════════════════════════════════════ */
+function NewProjectModal({
+    isOpen,
+    onClose,
+    onSave,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    onSave: (name: string, description?: string) => void;
+}) {
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const backdropRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (isOpen) { setName(""); setDescription(""); }
+    }, [isOpen]);
+
+    useEffect(() => {
+        const handleEscape = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+        if (isOpen) window.addEventListener("keydown", handleEscape);
+        return () => window.removeEventListener("keydown", handleEscape);
+    }, [isOpen, onClose]);
+
+    if (!isOpen) return null;
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!name.trim()) return;
+        onSave(name.trim(), description.trim() || undefined);
+        onClose();
+    };
+
+    const handleBackdropClick = (e: React.MouseEvent) => {
+        if (e.target === backdropRef.current) onClose();
+    };
+
+    return (
+        <div ref={backdropRef} onClick={handleBackdropClick}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="flex items-center justify-between p-5 border-b border-border">
+                    <h2 className="text-lg font-bold text-foreground">New Project</h2>
+                    <button onClick={onClose} className="size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
+                        <X size={18} />
+                    </button>
+                </div>
+                <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                    <div>
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Project Name</label>
+                        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Website Redesign" autoFocus
+                            className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+                    </div>
+                    <div>
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Description <span className="normal-case text-muted-foreground/60">(optional)</span></label>
+                        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is this project about?" rows={2}
+                            className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none" />
+                    </div>
+                    <div className="flex justify-end gap-2 pt-1">
+                        <button type="button" onClick={onClose}
+                            className="px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all">Cancel</button>
+                        <button type="submit"
+                            className="px-5 py-2 bg-primary text-white rounded-lg text-xs font-semibold hover:brightness-110 transition-all shadow-sm shadow-primary/20">Create Project</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Project Selector Dropdown
+   ═══════════════════════════════════════════════════════════════ */
+function ProjectSelector({
+    projects,
+    activeProjectId,
+    onSelect,
+    onNewProject,
+    onDeleteProject,
+}: {
+    projects: Project[];
+    activeProjectId: string | null;
+    onSelect: (id: string) => void;
+    onNewProject: () => void;
+    onDeleteProject: (id: string) => void;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const activeProject = projects.find(p => p.id === activeProjectId);
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    return (
+        <div ref={dropdownRef} className="relative">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-muted transition-all text-primary font-medium text-sm"
+            >
+                {activeProject?.name || "Select Project"}
+                <ChevronDown size={14} className={cn("transition-transform", isOpen && "rotate-180")} />
+            </button>
+
+            {isOpen && (
+                <div className="absolute top-full left-0 mt-1 w-64 bg-card border border-border rounded-xl shadow-xl z-40 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                    <div className="p-2 border-b border-border">
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1">Projects</p>
+                    </div>
+                    <div className="max-h-48 overflow-y-auto custom-scrollbar p-1">
+                        {projects.map((project) => (
+                            <div
+                                key={project.id}
+                                className={cn(
+                                    "flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer group transition-all",
+                                    project.id === activeProjectId
+                                        ? "bg-primary/10 text-primary"
+                                        : "hover:bg-muted text-foreground"
+                                )}
+                                onClick={() => { onSelect(project.id); setIsOpen(false); }}
+                            >
+                                <div className="min-w-0">
+                                    <span className="text-sm font-medium truncate block">{project.name}</span>
+                                    {project.description && (
+                                        <span className="text-[10px] text-muted-foreground truncate block">{project.description}</span>
+                                    )}
+                                </div>
+                                {projects.length > 1 && (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); onDeleteProject(project.id); }}
+                                        className="text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all shrink-0 ml-2"
+                                    >
+                                        <Trash2 size={12} />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="p-1 border-t border-border">
+                        <button
+                            onClick={() => { onNewProject(); setIsOpen(false); }}
+                            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                        >
+                            <FolderPlus size={14} />
+                            New Project
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Main TaskRegistry Component
+   ═══════════════════════════════════════════════════════════════ */
 export function TaskRegistry() {
     const [inputValue, setInputValue] = useState("");
     const [addingTo, setAddingTo] = useState<TaskStatus | null>(null);
-    const { tasks, addTask, deleteTask, updateTaskStatus, updateTask } = useStore();
+    const { tasks, addTask, deleteTask, updateTaskStatus, updateTask, projects, activeProjectId, addProject, deleteProject, setActiveProject } = useStore();
 
     /* ── Modal state ── */
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
+    const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
 
     /* ── Drag state ── */
     const [dragOverCol, setDragOverCol] = useState<TaskStatus | null>(null);
 
-    /* Seed the board with sample tasks on first load if empty */
+    /* Seed the board with a default project and sample tasks on first load */
+    const seeded = useRef(false);
     useEffect(() => {
-        if (tasks.length === 0) {
-            const seeded: Task[] = SEED_TASKS.map((t) => ({
+        if (projects.length === 0 && !seeded.current) {
+            seeded.current = true;
+            const projectId = addProject("Q4 Product Launch", "Complete all mobile designs and handoff for development");
+            const seedTasks: Task[] = SEED_TASKS.map((t) => ({
                 ...t,
                 id: crypto.randomUUID(),
+                projectId,
             }));
-            useStore.setState({ tasks: seeded });
+            useStore.setState({ tasks: seedTasks });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const activeProject = projects.find(p => p.id === activeProjectId);
+    const activeTasks = tasks.filter(t => t.projectId === activeProjectId);
 
     const handleAdd = (status: TaskStatus = "todo") => {
         if (inputValue.trim()) {
@@ -307,28 +418,17 @@ export function TaskRegistry() {
         if (e.key === "Escape") setAddingTo(null);
     };
 
-    const getTasksByStatus = (status: TaskStatus) => tasks.filter(t => t.status === status);
+    const getTasksByStatus = (status: TaskStatus) => activeTasks.filter(t => t.status === status);
 
     /* ── Modal handlers ── */
-    const openNewTaskModal = () => {
-        setEditingTask(null);
-        setIsModalOpen(true);
-    };
-
-    const openEditTaskModal = (task: Task) => {
-        setEditingTask(task);
-        setIsModalOpen(true);
-    };
+    const openNewTaskModal = () => { setEditingTask(null); setIsTaskModalOpen(true); };
+    const openEditTaskModal = (task: Task) => { setEditingTask(task); setIsTaskModalOpen(true); };
 
     const handleModalSave = (data: { text: string; description: string; status: TaskStatus; category: string; dueDate: string; assignee: string }) => {
         if (editingTask) {
             updateTask(editingTask.id, {
-                text: data.text,
-                description: data.description,
-                status: data.status,
-                category: data.category,
-                dueDate: data.dueDate,
-                assignee: data.assignee,
+                text: data.text, description: data.description, status: data.status,
+                category: data.category, dueDate: data.dueDate, assignee: data.assignee,
                 completed: data.status === "done",
             });
         } else {
@@ -348,18 +448,39 @@ export function TaskRegistry() {
         setDragOverCol(colId);
     };
 
-    const handleDragLeave = () => {
-        setDragOverCol(null);
-    };
+    const handleDragLeave = () => { setDragOverCol(null); };
 
     const handleDrop = (e: React.DragEvent, colId: TaskStatus) => {
         e.preventDefault();
         const taskId = e.dataTransfer.getData("taskId");
-        if (taskId) {
-            updateTaskStatus(taskId, colId);
-        }
+        if (taskId) updateTaskStatus(taskId, colId);
         setDragOverCol(null);
     };
+
+    /* ── No project selected state ── */
+    if (!activeProjectId || projects.length === 0) {
+        return (
+            <div className="flex-1 flex items-center justify-center p-6">
+                <div className="text-center">
+                    <FolderPlus size={48} className="mx-auto text-muted-foreground mb-4" />
+                    <h2 className="text-xl font-bold text-foreground mb-2">No Projects Yet</h2>
+                    <p className="text-sm text-muted-foreground mb-6">Create your first project to start managing tasks.</p>
+                    <button
+                        onClick={() => setIsProjectModalOpen(true)}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg text-sm font-semibold hover:brightness-110 transition-all shadow-sm shadow-primary/20 mx-auto"
+                    >
+                        <Plus size={16} />
+                        Create Project
+                    </button>
+                    <NewProjectModal
+                        isOpen={isProjectModalOpen}
+                        onClose={() => setIsProjectModalOpen(false)}
+                        onSave={(name, desc) => addProject(name, desc)}
+                    />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
@@ -372,10 +493,20 @@ export function TaskRegistry() {
                             <span>/</span>
                             <span>Projects</span>
                             <span>/</span>
-                            <span className="text-primary font-medium">Q4 Product Launch</span>
+                            <ProjectSelector
+                                projects={projects}
+                                activeProjectId={activeProjectId}
+                                onSelect={setActiveProject}
+                                onNewProject={() => setIsProjectModalOpen(true)}
+                                onDeleteProject={deleteProject}
+                            />
                         </div>
-                        <h1 className="text-2xl font-bold text-foreground">Project Tasks</h1>
-                        <p className="text-sm text-muted-foreground mt-0.5">Manage your design system sprints and deliverables</p>
+                        <h1 className="text-2xl font-bold text-foreground">
+                            {activeProject?.name || "Project Tasks"}
+                        </h1>
+                        {activeProject?.description && (
+                            <p className="text-sm text-muted-foreground mt-0.5">{activeProject.description}</p>
+                        )}
                     </div>
                     <div className="flex items-center gap-3">
                         {/* Avatar stack */}
@@ -387,7 +518,6 @@ export function TaskRegistry() {
                             ))}
                         </div>
 
-                        {/* Filter / Options button (matching LEA design) */}
                         <button className="size-9 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all">
                             <SlidersHorizontal size={16} />
                         </button>
@@ -402,9 +532,8 @@ export function TaskRegistry() {
                     </div>
                 </div>
 
-                {/* ── Board Grid: 4 kanban columns + Activity sidebar ── */}
-                <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr_1fr_280px] gap-5">
-                    {/* Kanban Columns */}
+                {/* ── Board Grid: 4 full-width kanban columns ── */}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
                     {columns.map((col) => {
                         const colTasks = getTasksByStatus(col.id);
                         const isDone = col.id === "done";
@@ -451,71 +580,45 @@ export function TaskRegistry() {
                                                     isDone && "opacity-60"
                                                 )}
                                             >
-                                                {/* Drag handle + Category badge */}
                                                 <div className="flex items-start justify-between mb-2">
                                                     <div className="flex items-center gap-2">
                                                         <GripVertical size={14} className="text-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing shrink-0" />
                                                         {task.category && (
-                                                            <span className={cn(
-                                                                "text-[10px] font-bold uppercase px-2 py-0.5 rounded-md inline-block",
-                                                                catColor.bg, catColor.text
-                                                            )}>
+                                                            <span className={cn("text-[10px] font-bold uppercase px-2 py-0.5 rounded-md inline-block", catColor.bg, catColor.text)}>
                                                                 {task.category}
                                                             </span>
                                                         )}
                                                     </div>
                                                 </div>
 
-                                                {/* Title */}
-                                                <h4 className={cn(
-                                                    "text-sm font-semibold text-foreground leading-snug",
-                                                    isDone && "line-through",
-                                                    task.description ? "mb-1" : "mb-3"
-                                                )}>
+                                                <h4 className={cn("text-sm font-semibold text-foreground leading-snug", isDone && "line-through", task.description ? "mb-1" : "mb-3")}>
                                                     {task.text}
                                                 </h4>
 
-                                                {/* Description */}
                                                 {task.description && (
-                                                    <p className="text-[11px] text-muted-foreground leading-relaxed mb-3 line-clamp-2">
-                                                        {task.description}
-                                                    </p>
+                                                    <p className="text-[11px] text-muted-foreground leading-relaxed mb-3 line-clamp-2">{task.description}</p>
                                                 )}
 
-                                                {/* Footer: metadata + assignee */}
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-3 text-muted-foreground">
-                                                        {/* Due date */}
                                                         {task.dueDate && (
                                                             <span className="flex items-center gap-1 text-[10px] font-medium">
-                                                                <Calendar size={11} />
-                                                                {task.dueDate}
+                                                                <Calendar size={11} />{task.dueDate}
                                                             </span>
                                                         )}
-                                                        {/* Comment count */}
                                                         {(task.commentCount !== undefined && task.commentCount > 0) && (
                                                             <span className="flex items-center gap-1 text-[10px] font-medium">
-                                                                <MessageSquare size={11} />
-                                                                {task.commentCount}
+                                                                <MessageSquare size={11} />{task.commentCount}
                                                             </span>
                                                         )}
                                                     </div>
-
                                                     <div className="flex items-center gap-1.5">
-                                                        {/* Delete (hover reveal) */}
-                                                        <button
-                                                            onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}
-                                                            className="text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                                                        >
+                                                        <button onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}
+                                                            className="text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
                                                             <Trash2 size={13} />
                                                         </button>
-
-                                                        {/* Assignee avatar */}
                                                         {task.assignee && (
-                                                            <div className={cn(
-                                                                "size-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white",
-                                                                avatarColor
-                                                            )}>
+                                                            <div className={cn("size-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white", avatarColor)}>
                                                                 {task.assignee}
                                                             </div>
                                                         )}
@@ -525,98 +628,45 @@ export function TaskRegistry() {
                                         );
                                     })}
 
-                                    {/* ── Add card: dashed border button (LEA style) ── */}
+                                    {/* ── Add card inline ── */}
                                     {addingTo === col.id ? (
                                         <div className="bg-card rounded-xl border border-primary/30 p-3 shadow-sm">
-                                            <input
-                                                type="text"
-                                                value={inputValue}
-                                                onChange={(e) => setInputValue(e.target.value)}
-                                                onKeyDown={handleKeyDown}
-                                                autoFocus
-                                                placeholder="Task name..."
-                                                className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none mb-2"
-                                            />
+                                            <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={handleKeyDown} autoFocus
+                                                placeholder="Task name..." className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none mb-2" />
                                             <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => handleAdd(col.id)}
-                                                    className="px-3 py-1 bg-primary text-white rounded-md text-xs font-semibold hover:brightness-110 transition-all"
-                                                >
-                                                    Add
-                                                </button>
-                                                <button
-                                                    onClick={() => setAddingTo(null)}
-                                                    className="px-3 py-1 text-muted-foreground text-xs font-semibold hover:text-foreground transition-colors"
-                                                >
-                                                    Cancel
-                                                </button>
+                                                <button onClick={() => handleAdd(col.id)}
+                                                    className="px-3 py-1 bg-primary text-white rounded-md text-xs font-semibold hover:brightness-110 transition-all">Add</button>
+                                                <button onClick={() => setAddingTo(null)}
+                                                    className="px-3 py-1 text-muted-foreground text-xs font-semibold hover:text-foreground transition-colors">Cancel</button>
                                             </div>
                                         </div>
                                     ) : (
-                                        <button
-                                            onClick={() => setAddingTo(col.id)}
-                                            className="flex items-center justify-center gap-2 py-2.5 border-2 border-dashed border-border rounded-xl text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 text-xs font-medium transition-all"
-                                        >
-                                            <Plus size={14} />
-                                            Add card
+                                        <button onClick={() => setAddingTo(col.id)}
+                                            className="flex items-center justify-center gap-2 py-2.5 border-2 border-dashed border-border rounded-xl text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-primary/5 text-xs font-medium transition-all">
+                                            <Plus size={14} /> Add card
                                         </button>
                                     )}
                                 </div>
                             </div>
                         );
                     })}
-
-                    {/* ── Sidebar: Activity Feed + Sprint Goal ── */}
-                    <div className="space-y-5">
-                        {/* Activity Feed */}
-                        <div className="bg-card rounded-2xl border border-border p-5">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-sm font-semibold text-foreground">Activity Feed</h3>
-                                <button className="text-muted-foreground hover:text-foreground transition-colors">
-                                    <span className="material-symbols-outlined text-[18px]">close</span>
-                                </button>
-                            </div>
-                            <div className="space-y-4">
-                                {PLACEHOLDER_ACTIVITY.map((activity, i) => (
-                                    <div key={i} className="flex gap-3">
-                                        <div className={cn("size-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 mt-0.5", activity.color)}>
-                                            {activity.avatar}
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-foreground leading-relaxed">
-                                                <span className="font-semibold">{activity.user}</span> {activity.action}
-                                            </p>
-                                            <span className="text-[10px] text-muted-foreground">{activity.time}</span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Sprint Goal */}
-                        <div className="bg-gradient-to-br from-primary to-pink-500 rounded-2xl p-5 text-white">
-                            <h3 className="text-sm font-bold mb-1">Sprint Goal</h3>
-                            <p className="text-xs leading-relaxed opacity-90 mb-3">
-                                Complete all mobile designs and handoff for development by Friday.
-                            </p>
-                            <div className="flex items-center justify-between text-xs mb-1.5">
-                                <span className="font-semibold opacity-80">82%</span>
-                            </div>
-                            <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
-                                <div className="h-full bg-white rounded-full w-[82%]" />
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
             {/* ── Task Modal ── */}
             <TaskModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                isOpen={isTaskModalOpen}
+                onClose={() => setIsTaskModalOpen(false)}
                 task={editingTask}
                 onSave={handleModalSave}
                 onDelete={editingTask ? () => deleteTask(editingTask.id) : undefined}
+            />
+
+            {/* ── New Project Modal ── */}
+            <NewProjectModal
+                isOpen={isProjectModalOpen}
+                onClose={() => setIsProjectModalOpen(false)}
+                onSave={(name, desc) => addProject(name, desc)}
             />
         </div>
     );

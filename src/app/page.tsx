@@ -36,15 +36,17 @@ export default function Home() {
       <Sidebar />
 
       {/* Main content area — offset for the floating sidebar (w-24 + m-4 = 112px) */}
-      <div className="flex-1 flex flex-col h-screen ml-[112px] pr-4 py-4 gap-4 relative z-10 overflow-hidden">
-        {/* Top bar */}
-        <TopBar title={VIEW_TITLES[activeView] || "Dashboard"} />
+      <div className="relative z-10 ml-[112px] flex h-screen flex-1 flex-col overflow-hidden py-4 pr-4">
+        <div className="mx-auto flex w-full max-w-[1560px] min-w-0 flex-1 flex-col">
+          {/* Top bar */}
+          <TopBar title={VIEW_TITLES[activeView] || "Dashboard"} />
 
-        {/* View content */}
-        {activeView === "home" && <DashboardView />}
-        {activeView === "tasks" && <TaskRegistry />}
-        {activeView === "timer" && <TimerView />}
-        {activeView === "music" && <AmbiancePlayer />}
+          {/* View content */}
+          {activeView === "home" && <DashboardView />}
+          {activeView === "tasks" && <TaskRegistry />}
+          {activeView === "timer" && <TimerView />}
+          {activeView === "music" && <AmbiancePlayer />}
+        </div>
       </div>
     </div>
   );

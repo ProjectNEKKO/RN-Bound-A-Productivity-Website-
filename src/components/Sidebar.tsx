@@ -14,26 +14,24 @@ export function Sidebar() {
     const { activeView, setActiveView, logout } = useStore();
 
     return (
-        <aside className="fixed left-0 top-0 bottom-0 w-16 m-4 rounded-[2rem] glass-sidebar flex flex-col items-center py-8 gap-8 z-50">
-            {/* Logo */}
+        <aside className="fixed bottom-0 left-0 top-0 z-50 m-4 flex w-16 flex-col items-center rounded-[2rem] bg-white/72 py-5 shadow-[0_18px_40px_rgba(133,102,120,0.08)] ring-1 ring-white/80">
             <button
                 onClick={() => setActiveView("home")}
-                className="size-12 bg-gradient-to-br from-primary to-pink-400 rounded-2xl shadow-lg shadow-primary/20 flex items-center justify-center text-white mb-4 hover:scale-110 transition-transform"
+                className="mb-6 flex size-11 items-center justify-center rounded-full bg-[#fff7f9] text-[#b07a89] shadow-inner"
             >
-                <span className="material-symbols-outlined text-2xl">timer</span>
+                <span className="text-lg font-bold tracking-[-0.04em]">RN</span>
             </button>
 
-            {/* Nav Items */}
-            <nav className="flex flex-col gap-4 w-full px-4 items-center flex-1">
+            <nav className="flex flex-1 flex-col items-center gap-4 px-2">
                 {navItems.map((item) => (
-                    <a
+                    <button
                         key={item.id}
                         onClick={() => setActiveView(item.id)}
                         className={cn(
-                            "group relative flex items-center justify-center size-11 rounded-full transition-all duration-300 cursor-pointer",
+                            "group relative flex size-11 items-center justify-center rounded-full transition-all duration-300",
                             activeView === item.id
-                                ? "bg-primary text-white shadow-lg shadow-primary/25"
-                                : "text-slate-400 hover:text-primary hover:bg-white/40 dark:hover:bg-white/5"
+                                ? "bg-[#f7a5b6] text-[#8d5f70] shadow-[0_12px_24px_rgba(236,167,184,0.4)]"
+                                : "text-[#9d8f97] hover:bg-[#faf4f6] hover:text-[#8d5f70]"
                         )}
                         title={item.label}
                     >
@@ -43,14 +41,13 @@ export function Sidebar() {
                         )}>
                             {item.icon}
                         </span>
-                    </a>
+                    </button>
                 ))}
             </nav>
 
-            {/* Bottom section */}
-            <div className="mt-auto flex flex-col gap-4 items-center">
+            <div className="mt-auto flex flex-col items-center gap-4">
                 <button
-                    className="size-10 rounded-full hover:bg-white/40 dark:hover:bg-white/10 flex items-center justify-center text-slate-400 transition-colors"
+                    className="flex size-10 items-center justify-center rounded-full text-[#9d8f97] transition hover:bg-[#faf4f6] hover:text-[#8d5f70]"
                     title="Settings"
                 >
                     <span className="material-symbols-outlined">settings</span>
@@ -58,7 +55,7 @@ export function Sidebar() {
 
                 <button
                     onClick={logout}
-                    className="size-10 rounded-full hover:bg-red-500/10 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors"
+                    className="flex size-10 items-center justify-center rounded-full text-[#9d8f97] transition hover:bg-[#faf4f6] hover:text-[#8d5f70]"
                     title="Sign out"
                 >
                     <span className="material-symbols-outlined text-xl">logout</span>

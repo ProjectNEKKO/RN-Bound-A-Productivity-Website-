@@ -1,63 +1,49 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 
 export function TopBar({ title }: { title: string }) {
     const { theme, setTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
     return (
-        <header className="glass-panel h-16 rounded-[1.5rem] px-8 flex items-center justify-between shadow-sm shrink-0">
-            {/* Left: Search */}
-            <div className="flex items-center gap-3 text-slate-400 w-96 group">
-                <span className="material-symbols-outlined group-focus-within:text-primary transition-colors">search</span>
-                <input
-                    className="bg-transparent border-none focus:ring-0 p-0 text-sm w-full placeholder-slate-400 text-foreground focus:outline-none"
-                    placeholder="Search tasks, projects, or music..."
-                    type="text"
-                />
+        <header className="mb-5 flex h-16 shrink-0 items-center justify-between gap-4 rounded-[1.75rem] bg-white/70 px-5 shadow-[0_16px_34px_rgba(133,102,120,0.08)] ring-1 ring-white/70">
+            <div className="flex min-w-0 flex-1 items-center gap-4">
+                <div className="flex w-full max-w-[320px] items-center gap-3 rounded-full bg-[#f7f3f4] px-4 py-2.5 text-[#b4a6ad]">
+                    <span className="material-symbols-outlined text-[18px]">search</span>
+                    <input
+                        className="w-full bg-transparent p-0 text-sm text-[#71636b] placeholder:text-[#b4a6ad] focus:outline-none"
+                        placeholder="Search resources..."
+                        type="text"
+                    />
+                </div>
+                <div className="hidden min-w-0 lg:block">
+                    <p className="truncate text-sm font-medium text-[#b29ea8]">{title}</p>
+                </div>
             </div>
 
-            {/* Right: Status + Notifications + Profile */}
-            <div className="flex items-center gap-6">
-                <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-primary/5 rounded-full border border-primary/10">
-                    <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-xs font-bold text-primary">Focus Mode On</span>
-                </div>
-
-                <button className="relative text-slate-400 hover:text-foreground transition-colors">
-                    <span className="material-symbols-outlined">notifications</span>
-                    <span className="absolute top-0 right-0 size-2 bg-red-400 rounded-full border-2 border-white dark:border-slate-900" />
+            <div className="flex items-center gap-3">
+                <button className="relative flex size-10 items-center justify-center rounded-full text-[#937b86] transition hover:bg-[#f8edf0]">
+                    <span className="material-symbols-outlined text-[20px]">notifications</span>
+                    <span className="absolute right-[11px] top-[10px] size-1.5 rounded-full bg-[#d9899f]" />
                 </button>
 
-                {mounted && (
-                    <button
-                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                        className="text-slate-400 hover:text-foreground transition-colors flex items-center justify-center size-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
-                        title="Toggle dark mode"
-                    >
-                        <span className="material-symbols-outlined text-xl">
-                            {theme === "dark" ? "light_mode" : "dark_mode"}
-                        </span>
-                    </button>
-                )}
+                <button
+                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                    className="flex size-10 items-center justify-center rounded-full text-[#937b86] transition hover:bg-[#f8edf0]"
+                    title="Toggle theme"
+                >
+                    <span className="material-symbols-outlined text-[20px]">
+                        {theme === "dark" ? "light_mode" : "dark_mode"}
+                    </span>
+                </button>
 
-                <div className="h-6 w-px bg-slate-200 dark:bg-slate-700" />
-
-                <div className="flex items-center gap-3">
-                    <div className="text-right">
-                        <p className="text-sm font-bold text-foreground">Sarah J.</p>
-                        <p className="text-[10px] text-slate-400">Pro Member</p>
+                <div className="flex items-center gap-3 rounded-full bg-white px-2.5 py-1.5 shadow-[0_8px_20px_rgba(160,136,148,0.12)]">
+                    <span className="hidden text-[0.66rem] font-bold uppercase tracking-[0.18em] text-[#836674] sm:block">
+                        RN Monogram
+                    </span>
+                    <div className="flex size-9 items-center justify-center rounded-full bg-[linear-gradient(180deg,#d8c7bf,#a87567)] text-xs font-bold text-white shadow-inner">
+                        RN
                     </div>
-                    <img
-                        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
-                        alt="Sarah J."
-                        className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20"
-                    />
                 </div>
             </div>
         </header>
