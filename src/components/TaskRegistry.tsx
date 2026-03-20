@@ -475,8 +475,8 @@ export function TaskRegistry() {
                     </div>
                 </div>
 
-                {/* ── Board Grid: 4 full-width kanban columns ── */}
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
+                {/* ── Board Grid: Kanban columns ── */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 pb-4">
                     {columns.map((col) => {
                         const colTasks = getTasksByStatus(col.id);
                         const isDone = col.id === "done";

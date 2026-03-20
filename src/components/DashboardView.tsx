@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Pause, Play, Plus, SkipBack, SkipForward } from "lucide-react";
 import { useStore, TimerMode, type Task } from "@/store/useStore";
 import { cn } from "@/lib/utils";
+import { StudyHeatmap } from "./StudyHeatmap";
 
 const MINI_TRACK = {
     name: "Lofi Study Beats",
@@ -51,6 +52,7 @@ export function DashboardView() {
         setTimerMode,
         resetTimer,
         setActiveView,
+        addStudyTime,
     } = useStore();
 
     const [miniPlaying, setMiniPlaying] = useState(false);
@@ -69,6 +71,11 @@ export function DashboardView() {
         if (isRunning && timeLeft > 0) {
             interval = setInterval(() => {
                 setTimeLeft((prev) => prev - 1);
+                // Track study time if in Focus mode
+                if (timerMode === "Focus") {
+                    const todayStr = new Date().toISOString().split("T")[0];
+                    addStudyTime(todayStr, 1);
+                }
             }, 1000);
         } else if (timeLeft === 0 && isRunning) {
             setIsRunning(false);
@@ -90,7 +97,7 @@ export function DashboardView() {
         return () => {
             if (interval) clearInterval(interval);
         };
-    }, [autoStartBreaks, incrementPomodoros, isRunning, pomodorosCompleted, setIsRunning, setTimeLeft, setTimerMode, timeLeft, timerMode]);
+    }, [autoStartBreaks, incrementPomodoros, isRunning, pomodorosCompleted, setIsRunning, setTimeLeft, setTimerMode, timeLeft, timerMode, addStudyTime]);
 
     const projectTasks = useMemo(() => {
         if (!activeProjectId) return tasks;
@@ -246,6 +253,26 @@ export function DashboardView() {
                                 ))}
                             </div>
                         </section>
+
+                        <StudyHeatmap />
+
+                        {/* Temporary developer button to add dummy data for heatmap verification */}
+                        <button
+                            onClick={() => {
+                                const today = new Date();
+                                for (let i = 0; i < 300; i++) {
+                                    const d = new Date(today);
+                                    d.setDate(d.getDate() - i);
+                                    const dateStr = d.toISOString().split("T")[0];
+                                    // Random seconds between 0 and 5 hours (18000s)
+                                    const seconds = Math.floor(Math.random() * 18000);
+                                    addStudyTime(dateStr, seconds);
+                                }
+                            }}
+                            className="w-full text-xs text-[#a799a2] hover:text-[#7f5364] underline mt-2"
+                        >
+                            [Dev Only] Generate Heatmap Dummy Data
+                        </button>
                     </div>
 
                     <div className="space-y-6">

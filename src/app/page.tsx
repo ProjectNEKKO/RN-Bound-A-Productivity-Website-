@@ -39,7 +39,7 @@ export default function Home() {
 
       {/* Main content area — offset for the floating sidebar (w-24 + m-4 = 112px) */}
       <div className="relative ml-[112px] flex h-screen flex-1 flex-col overflow-hidden py-4 pr-4">
-        <div className="mx-auto flex w-full max-w-[1560px] min-w-0 flex-1 flex-col">
+        <div className="mx-auto flex w-full max-w-[1560px] min-w-0 min-h-0 flex-1 flex-col">
           {/* Top bar */}
           <TopBar title={VIEW_TITLES[activeView] || "Dashboard"} />
 

@@ -1,9 +1,6 @@
 "use client";
 
-import { useTheme } from "next-themes";
-
 export function TopBar({ title }: { title: string }) {
-    const { theme, setTheme } = useTheme();
 
     return (
         <header className="mb-5 flex h-16 shrink-0 items-center justify-between gap-4 rounded-[1.75rem] bg-white/70 px-5 shadow-[0_16px_34px_rgba(133,102,120,0.08)] ring-1 ring-white/70">
@@ -25,16 +22,6 @@ export function TopBar({ title }: { title: string }) {
                 <button className="relative flex size-10 items-center justify-center rounded-full text-[#937b86] transition hover:bg-[#f8edf0]">
                     <span className="material-symbols-outlined text-[20px]">notifications</span>
                     <span className="absolute right-[11px] top-[10px] size-1.5 rounded-full bg-[#d9899f]" />
-                </button>
-
-                <button
-                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                    className="flex size-10 items-center justify-center rounded-full text-[#937b86] transition hover:bg-[#f8edf0]"
-                    title="Toggle theme"
-                >
-                    <span className="material-symbols-outlined text-[20px]">
-                        {theme === "dark" ? "light_mode" : "dark_mode"}
-                    </span>
                 </button>
 
                 <div className="flex items-center gap-3 rounded-full bg-white px-2.5 py-1.5 shadow-[0_8px_20px_rgba(160,136,148,0.12)]">

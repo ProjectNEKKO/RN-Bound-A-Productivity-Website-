@@ -55,6 +55,10 @@ interface AppState {
     setIsRunning: (isRunning: boolean) => void;
     resetTimer: () => void;
 
+    // Heatmap State
+    studyTimeByDate: Record<string, number>;
+    addStudyTime: (dateStr: string, seconds: number) => void;
+
     // Project State
     projects: Project[];
     activeProjectId: string | null;
@@ -114,6 +118,18 @@ export const useStore = create<AppState>()(
             })),
             setIsRunning: (isRunning) => set({ isRunning }),
             resetTimer: () => set((state) => ({ timeLeft: state.timerDurations[state.timerMode], isRunning: false })),
+
+            // Heatmap State
+            studyTimeByDate: {},
+            addStudyTime: (dateStr, seconds) => set((state) => {
+                const prev = state.studyTimeByDate[dateStr] || 0;
+                return {
+                    studyTimeByDate: {
+                        ...state.studyTimeByDate,
+                        [dateStr]: prev + seconds
+                    }
+                };
+            }),
 
             // Project State
             projects: [],
@@ -175,6 +191,7 @@ export const useStore = create<AppState>()(
                 timerDurations: state.timerDurations,
                 autoStartBreaks: state.autoStartBreaks,
                 pomodorosCompleted: state.pomodorosCompleted,
+                studyTimeByDate: state.studyTimeByDate,
                 isAuthenticated: state.isAuthenticated,
             }),
         }
